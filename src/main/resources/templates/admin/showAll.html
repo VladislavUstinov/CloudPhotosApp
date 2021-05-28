@@ -33,6 +33,7 @@
                             <thead class="thead-inverse">
                             <tr>
                                 <th>ID</th>
+                                <th>Role</th>
                                 <th>Name</th>
                                 <th>Password</th>
                                 <th>Password Confirmation</th>
@@ -43,7 +44,8 @@
                             <!--/*@thymesVar id="user" type="laserdiffraction01.laserdiffraction01.domain.User"*/-->
                             <tr th:each="user : ${users}">
                                 <td th:text="${user.id}"> 1</td>
-                                <td th:text="${user.name}"> 1</td>
+                                <td th:text="${user.getRoleNamesAsString()}"> 1</td>
+                                <td th:text="${user.username}"> 1</td>
                                 <td th:text="${user.password}"> 1</td>
                                 <td th:text="${user.passwordConfirmation}"> 1</td>
                             </tr>
