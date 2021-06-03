@@ -30,6 +30,13 @@ public class User implements UserDetails {
     @ManyToMany(fetch = FetchType.EAGER)
     private Set<Role> roles = new HashSet<>();
 
+    //reference relationship
+    @OneToOne(fetch = FetchType.EAGER)
+    private Folder root = null;
+
+    @ManyToMany(mappedBy = "owners")
+    private Set<Folder> folders = new HashSet<>();
+
     public String getFirstRoleNameAsString () {
         if (roles == null || roles.isEmpty()) return "User has no roles";
 

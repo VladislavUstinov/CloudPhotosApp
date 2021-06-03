@@ -21,6 +21,31 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity httpSecurity) throws Exception {
+
+        httpSecurity
+                //the more specific rules should go first
+                .authorizeRequests()
+                //Доступ только для не зарегистрированных пользователей
+                    .antMatchers("/user/registration").not().fullyAuthenticated()
+                //Доступ только для зарегистрированных пользователей
+                    .antMatchers("/admin/showAll").hasRole(Role.ADMIN_ROLE_STRING)
+                    .antMatchers("/news", "/photos").hasAnyRole(Role.ADMIN_ROLE_STRING, Role.USER_ROLE_STRING)
+                    .antMatchers("/", "/index").permitAll()
+                    .anyRequest().authenticated()
+                .and()
+                .formLogin()
+                .loginPage("/login")
+                .defaultSuccessUrl("/photos", true)
+                .permitAll()
+                .and()
+                .logout()
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/")
+                .permitAll();
+    }
+
+
+}
 /*
 //from habr.com/482552
         httpSecurity
@@ -47,9 +72,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .logout()
                 .permitAll()
                 .logoutSuccessUrl("/"); */
-
-        //from web-security project
-        httpSecurity
                 /*.authorizeRequests()
                 //Доступ только для не зарегистрированных пользователей
                     .antMatchers("/user/registration").not().fullyAuthenticated()
@@ -61,26 +83,6 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 //Все остальные страницы требуют аутентификации
                     .anyRequest().authenticated()
                 .and()*/
-
-                //the more specific rules should go first
-
-                .authorizeRequests()
-                //Доступ только для не зарегистрированных пользователей
-                    .antMatchers("/user/registration").not().fullyAuthenticated()
-                    .antMatchers("/admin/showAll").hasRole(Role.ADMIN_ROLE_STRING)
-                    .antMatchers("/news").hasAnyRole(Role.ADMIN_ROLE_STRING, Role.USER_ROLE_STRING)
-                    .antMatchers("/", "/index").permitAll()
-                    .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login")
-                .defaultSuccessUrl("/news", true)
-                .permitAll()
-                .and()
-                .logout()
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/")
-                .permitAll();
 
 //from https://www.baeldung.com/spring-security-login
         /*
@@ -105,7 +107,4 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
       .deleteCookies("JSESSIONID")
       .logoutSuccessHandler(logoutSuccessHandler());
          */
-    }
 
-
-}
