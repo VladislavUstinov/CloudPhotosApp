@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <meta charset="UTF-8"/>
+    <title>My photos</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"
+          th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}">
+
+    <script src="/webjars/jquery/1.11.1/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+</head>
+<body>
+
+<!--/*@thymesVar id="users" type="java.util.Set"*/-->
+<!--/*@thymesVar id="user" type="laserdiffraction01.laserdiffraction01.domain.User"*/-->
+<!--/*@thymesVar id="user" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+<!--/*@thymesVar id="user" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
+<div class="container-fluid" style="margin-top: 20px">
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <div class="panel panel-primary">
+
+                <div class="panel-heading">
+                    <h1 th:inline="text" class="panel-title">Hello [[${#httpServletRequest.remoteUser}]]!</h1>
+                </div>
+
+                <div class="panel-body">
+                    <div class="table-responsive" th:if="${parent != null}">
+                        <table class="table table-hover ">
+
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th><!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                                    <a href="#"  th:href="@{'/photos/' + ${parent.getId()}}" th:text=".." >Parent folder</a>
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="table-responsive" th:if="${not #sets.isEmpty(folders)}">
+                        <table class="table table-hover ">
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th>Folder name</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                            <!--/*@thymesVar id="folders" type="java.util.Set"*/-->
+                            <!--/*@thymesVar id="folder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                            <tr th:each="folder : ${folders}">
+                                <td><a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >Subfolder name</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="table-responsive" th:if="${not #sets.isEmpty(photos)}">
+                        <table class="table table-hover ">
+
+                            <thead class="thead-inverse">
+                                <tr>
+                                    <th>Photos</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                            <!--/*@thymesVar id="photos" type="java.util.Set"*/-->
+                            <!--/*@thymesVar id="photo" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
+                            <tr th:each="photo : ${photos}">
+
+                                <td><a href="#" th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}" th:text="${photo.getName()}" >Photo name</a></td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+                <div class="panel-body">
+                    <div class="row">
+                        <div class="col-md-5">
+                            <!--/*@thymesVar id="currentFolder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                            <form  action="http:\\localhost" method="post" enctype="multipart/form-data"
+                                   th:action="@{'/photos/' + ${currentFolder.getId()} + '/imageuploadform/'}">
+                                <label class="control-label">Select File</label>
+                                <input id="imagefile" name="imagefile" type="file" class="file">
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover ">
+
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th>
+                                    <!--/*@thymesVar id="selectedFilePhoto" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
+                                    <img src="../../static/images/guacamole400x400WithX.jpg"
+                                         th:src="@{'/photos/' + ${selectedFilePhoto.getId()} + '/image'}"
+                                         width="100%" height="auto" th:if="${selectedFilePhoto != null}">
+
+                                    <img src="../../static/images/guacamole400x400WithX.jpg"
+                                         th:src="@{'/photos/' + ${photos.iterator().next().getId()} + '/image'}"
+                                         width="100%" height="auto" th:if="${selectedFilePhoto == null && photos != null && photos.isEmpty()==false}">
+                                </th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+<div class="col-md-6">
+    <table>
+        <!--/*@thymesVar id="photos" type="java.util.Set"*/-->
+        <!--/*@thymesVar id="photo" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
+        <th:block>
+            <tr>
+                <td th:each="photo : ${photos}" th:if="${photos!=null && photos.isEmpty()==false}">
+                    <img th:src="@{'/photos/' + ${photo.getId()} + '/image'}"
+                         class ="img-thumbnail"
+                         th:alt="${photo.getName()}"
+                         width="80%" height="auto" th:if="${photo.getImage() != null}"
+                         th:alt-title="${photo.getName()}" >
+                </td>
+            </tr>
+            <tr>
+                <td th:each="photo : ${photos}" th:if="${photos!=null && photos.isEmpty()==false}">
+                    <a href="#" th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}"
+                       th:text="${photo.getName()}" >Photo</a>
+                </td>
+            </tr>
+        </th:block>
+    </table>
+</div>
+
+<div class="col-md-6">
+    <table>
+        <!--/*@thymesVar id="photos" type="java.util.Set"*/-->
+        <!--/*@thymesVar id="photo" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
+
+        <tr>
+            <td th:each="photo : ${photos}">
+                <img th:src="@{'/photos/' + ${photo.getId()} + '/image'}"
+                     th:class="img-thumbnail"
+                     th:alt="${photo.getName()}"
+                     th:cellpadding="10px"
+                     width="100%" height="auto" th:if="${photo.getImage() != null}"
+                     th:alt-title="${photo.getName()}" >
+
+                <a href="#" th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}"
+                   th:text="${photo.getName()}" >Photo</a>
+            </td>
+        </tr>
+
+    </table>
+</div>
+
+<div class="col-md-6">
+    <table>
+        <!--/*@thymesVar id="photos" type="java.util.Set"*/-->
+        <!--/*@thymesVar id="photo" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
+        <th:block>
+            <tr>
+                <td th:each="photo : ${photos}" th:if="${photos!=null && photos.isEmpty()==false}">
+                    <img th:src="@{'/photos/' + ${photo.getId()} + '/image'}"
+                         th:class ="img-thumbnail"
+                         th:alt="${photo.getName()}"
+                         width="80%" height="auto" th:if="${photo.getImage() != null}"
+                         th:alt-title="${photo.getName()}" >
+                </td>
+            </tr>
+            <tr>
+                <td th:each="photo : ${photos}" th:if="${photos!=null && photos.isEmpty()==false}">
+                    <a href="#" th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}"
+                       th:text="${photo.getName()}" >Photo</a>
+                </td>
+            </tr>
+        </th:block>
+    </table>
+</div>
+
+
+<div class="col-md-12">
+    <!--/*@thymesVar id="photos" type="java.util.Set"*/-->
+    <!--/*@thymesVar id="photo" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
+    <th:block th:each="photo : ${photos}" th:if="${photos!=null && photos.isEmpty()==false}">
+        <tr>
+            <td>
+                <a th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}">
+
+                    <img th:src="@{'/photos/' + ${photo.getId()} + '/image'}"
+                         th:class="img-thumbnail"
+                         th:alt="${photo.getName()}"
+                         width="20%" height="auto" th:if="${photo.getImage() != null}"
+                         th:alt-title="${photo.getName()}"
+                         th:title="hi">
+                </a>
+
+            </td>
+        </tr>
+    </th:block>
+
+</div>
+
+
+Рабочий вариант для передачи через @ModelAttribute в контроллер. Исходно здесь по умолчанию покажет пользователю то , что было исходно в egt
+А потом передаст ровно то, что введет пользователь, или пустоту, если input не было.
+<form th:object="${testFilePhoto}" th:action="@{'/testpost'}" th:method="post">
+    <!--/*@thymesVar id="testFilePhoto" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
+    <div th:text="${testFilePhoto.getName()}"></div>
+    <input type="text" name="name" th:value="*{name}" placeholder="Name"/>
+    <input type="submit" value="test post" />
+</form>
+
+Рабочий вариант для передачи через @RequestParam в контроллер
+Плюс список List<String> тоже передается легко и получатель пишет @RequestParam("some") List<String> some
+Соответственно можно и json строку передать как вызов метода - хотя хорошо бы включить Jackson отработать по умолчанию
+    и передавать просто тип без указания конвертера - пока не нашел как это сделать.
+<a href="#" th:href="@{/testpost(testFilePhotoName=${testFilePhoto.getName()})}" > TEST GET with PathVar </a>
+
+
+</body>
+</html>
+
+

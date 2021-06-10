@@ -6,13 +6,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
 @Getter
 @Setter
 @NoArgsConstructor
-@AllArgsConstructor
 @Entity
 public class FilePhoto {
 
@@ -21,6 +22,8 @@ public class FilePhoto {
     Long id = UUID.randomUUID().getMostSignificantBits();
 
     private String name = "";
+
+    //public List<String> getSomeList () { return Arrays.asList("abac", "tabac");}
 
     @Lob
     private Byte[] image = null;
@@ -44,5 +47,35 @@ public class FilePhoto {
     public FilePhoto(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public void setImage(Byte[] image) {
+        this.image = image;
+    }
+
+    public void setImageRawBytes(byte[] imageFileContent) {
+        if (imageFileContent == null) {
+            image = null;
+            return;
+        }
+
+        image = new Byte [imageFileContent.length];
+
+        for (int i = 0; i < imageFileContent.length; i ++)
+            image [i] = imageFileContent [i];
+    }
+
+
+    public FilePhoto(Long id, String name, Byte[] image, Folder folder) {
+        this.id = id;
+        this.name = name;
+        this.image = image;
+        this.folder = folder;
+    }
+
+    public FilePhoto(Long id, String name, byte[] imageFileContent) {
+        this.id = id;
+        this.name = name;
+        setImageRawBytes(imageFileContent);
     }
 }

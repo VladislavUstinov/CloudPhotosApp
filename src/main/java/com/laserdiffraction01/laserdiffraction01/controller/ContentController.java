@@ -1,5 +1,7 @@
 package com.laserdiffraction01.laserdiffraction01.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laserdiffraction01.laserdiffraction01.domain.FilePhoto;
 import com.laserdiffraction01.laserdiffraction01.domain.Folder;
 import com.laserdiffraction01.laserdiffraction01.domain.User;
@@ -14,17 +16,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Controller
@@ -43,26 +42,31 @@ public class ContentController {
         this.filePhotoRepository = filePhotoRepository;
     }
 
-    @GetMapping("/index")
+    @GetMapping(value={"/index", "/"})
     String getIndex(Model model){
 
         return "index";
     }
 
     @GetMapping("/photos/{folderId}")
-    String getCurrentFolder(@PathVariable String folderId, Model model){
+    String getCurrentFolder(@PathVariable String folderId, Model model){//}, @ModelAttribute("currentFolder") Folder currentFolder){
+      //  log.debug("ContentController.getCurrentFolder => old current folder = " + currentFolder.getName());
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentPrincipalName = authentication.getName();
 
         Folder folder = folderService.getFolderById(Long.decode(folderId));
 
         if (folder == null) {
+            log.error("ContentController.getCurrentFolder: folder NOT FOUND id = " + folderId);
             return "photos";//todo add error
         }
 
         User user = (User) userService.loadUserByUsername(currentPrincipalName);
 
         if (folder.getOwners().contains(user) == false) {
+            log.error("ContentController.getCurrentFolder: user " + user.getUsername() +
+                      " does NOT OWN folder " + folder.getName() + " with folder id = " + folder.getId() );
             return "photos";//todo add error
         }
 
@@ -71,7 +75,31 @@ public class ContentController {
         model.addAttribute("photos", folder.getFilePhotos());
         model.addAttribute("currentFolder", folder);
 
+        addPhotosTableToModel (model, folder);
+
         return "photos";
+    }
+
+    public void addPhotosTableToModel (Model model, Folder folder) {
+        Set<FilePhoto> photos = folder.getFilePhotos();
+
+        int n = 4;
+        int m = (int)Math.ceil(folder.getFilePhotos().size()/((double)n));
+
+        Iterator<FilePhoto> iterator = photos.iterator();
+
+        ArrayList<ArrayList<FilePhoto>> photosTable = new ArrayList<>();
+        for (int j = 0; j < m; j ++) {
+
+            ArrayList<FilePhoto> photosRaw = new ArrayList<>();
+
+            for (int i = 0; i < n && iterator.hasNext(); i++)
+                photosRaw.add(iterator.next());
+
+            photosTable.add(photosRaw);
+        }
+
+        model.addAttribute("photosTable", photosTable);
     }
 
 
@@ -89,6 +117,8 @@ public class ContentController {
         model.addAttribute("folders", root.getSubFolders());
         model.addAttribute("photos", root.getFilePhotos());
         model.addAttribute("currentFolder", root);
+
+        addPhotosTableToModel (model, root);
 
         return "photos";
     }
@@ -118,6 +148,7 @@ public class ContentController {
         }
         else {
             //todo add error
+            log.error("ContentController.selectPhoto: filePhoto is NOT FOUND id = " + selectedPhotoId);
             return "photos";
         }
     }

@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
+<head>
+    <meta charset="UTF-8"/>
+    <title>Test page</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"
+          th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}">
+
+    <script src="/webjars/jquery/1.11.1/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+</head>
+<body>
+
+<!--/*@thymesVar id="testEntity" type="laserdiffraction01.laserdiffraction01.domain.TestEntity"*/-->
+<form th:object="${testEntity}" th:action="@{'/testpost'}" th:method="post">
+    <div th:text="${testEntity.getName()}"></div>
+    <input type="text" name="name" th:value="*{name}" placeholder="Name"/>
+    <input type="checkbox" th:field="*{isOk}" />
+    <input type="submit" value="test post" />
+</form>
+
+
+<div>
+    <!--/*@thymesVar id="testEntityList" type="laserdiffraction01.laserdiffraction01.domain.TestEntityList"*/-->
+    <!--/*@thymesVar id="entity" type="laserdiffraction01.laserdiffraction01.domain.TestEntity"*/-->
+    <form th:object="${testEntityList}" th:action="@{'/testpostBooleanList'}" th:method="post">
+    <ul>
+        <li th:each="entity, itemStat : *{listTestEntitiesInClass}">
+            <div th:text="${entity.getName()}"></div>
+            <input th:field="*{listTestEntitiesInClass[__${itemStat.index}__].name}"/>
+            <input type="checkbox" th:field="*{listTestEntitiesInClass[__${itemStat.index}__].isOk}"/>
+        </li>
+    </ul>
+        <input type="submit" name="Button One" class="button" value="First" />
+        <input type="submit" th:formaction="@{'/testpostBooleanListSecond'}" name="Button Two" class="button" value="Second" />
+    </form>
+</div>
+
+
+<p>
+<!--/*@thymesVar id="jsonObjectMapper" type="com.fasterxml.jackson.databind.ObjectMapper"*/-->
+<a href="#" th:href="@{/testGetJson(testEntityJson=${jsonObjectMapper.writeValueAsString(testEntity)})}" > TEST GET with RequestParam via Jackson json </a>
+</p>
+
+<p>
+    <!--/*@thymesVar id="testEntity" type="laserdiffraction01.laserdiffraction01.domain.TestEntity"*/-->
+<a href="#" th:href="@{/testRequestParamName(testEntityName=${testEntity.getName()})}" > TEST GET with parameter "name" </a>
+</p>
+
+<p>
+    <!--/*@thymesVar id="testEntity" type="laserdiffraction01.laserdiffraction01.domain.TestEntity"*/-->
+    <a href="#" th:href="@{/testPathVarId/{id}/some(id=${testEntity.getId()})}" > TEST GET path variable "id" </a>
+</p>
+
+<p>
+    <!--/*@thymesVar id="testEntity" type="laserdiffraction01.laserdiffraction01.domain.TestEntity"*/-->
+    <a href="#" th:href="@{'/testPathVarId/' + ${testEntity.getId()} + '/some'}" > TEST GET path variable "id" </a>
+</p>
+
+<p>
+    <!--/*@thymesVar id="testEntity" type="laserdiffraction01.laserdiffraction01.domain.TestEntity"*/-->
+    <a href="#" th:href="@{/testRestMapping(testEntityParam=${jsonObjectMapper.writeValueAsString(testEntity)})}" > TEST Rest Mapping </a>
+</p>
+</body>
+</html>
