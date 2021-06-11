@@ -17,6 +17,9 @@ import java.util.UUID;
 @Entity
 public class FilePhoto {
 
+    private Boolean beingEdited = false;
+    private Boolean isSelected = false;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id = UUID.randomUUID().getMostSignificantBits();
@@ -75,6 +78,11 @@ public class FilePhoto {
 
     public FilePhoto(Long id, String name, byte[] imageFileContent) {
         this.id = id;
+        this.name = name;
+        setImageRawBytes(imageFileContent);
+    }
+
+    public FilePhoto(String name, byte[] imageFileContent) {
         this.name = name;
         setImageRawBytes(imageFileContent);
     }

@@ -20,6 +20,9 @@
 
 <!--/*@thymesVar id="testEntity" type="laserdiffraction01.laserdiffraction01.domain.TestEntity"*/-->
 <form th:object="${testEntity}" th:action="@{'/testpost'}" th:method="post">
+    <div th:text="${testEntity.getNestedTestEntity().getName()}"></div>
+    <input th:field="*{nestedTestEntity.name}" />
+    <input th:field="*{nestedTestEntity.id}" />
     <div th:text="${testEntity.getName()}"></div>
     <input type="text" name="name" th:value="*{name}" placeholder="Name"/>
     <input type="checkbox" th:field="*{isOk}" />
@@ -33,9 +36,9 @@
     <form th:object="${testEntityList}" th:action="@{'/testpostBooleanList'}" th:method="post">
     <ul>
         <li th:each="entity, itemStat : *{listTestEntitiesInClass}">
-            <div th:text="${entity.getName()}"></div>
-            <input th:field="*{listTestEntitiesInClass[__${itemStat.index}__].name}"/>
-            <input type="checkbox" th:field="*{listTestEntitiesInClass[__${itemStat.index}__].isOk}"/>
+                <input th:field="*{listTestEntitiesInClass[__${itemStat.index}__].name}" th:id="${#ids.seq('name')}">
+                <input th:field="*{listTestEntitiesInClass[__${itemStat.index}__].id}" th:id="${#ids.seq('id')}">
+                <input type="checkbox" th:field="*{listTestEntitiesInClass[__${itemStat.index}__].isOk}" th:id="${#ids.seq('isOk')}">
         </li>
     </ul>
         <input type="submit" name="Button One" class="button" value="First" />

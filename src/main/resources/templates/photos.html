@@ -15,6 +15,13 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+
+    <style>
+        .scrollableBody{
+            height: 700px;
+            overflow-y: auto
+        }
+    </style>
 </head>
 
 <body>
@@ -35,10 +42,27 @@
 
                 <div class="panel-body">
 
+                    <form th:object="${foldersPhotosDTO}" th:action="@{'/photos/' + ${currentFolder.getId()} + '/deleteSelected/'}" method="post">
+
                     <div class="row">
-                        <div class="col-md-4">
 
+                        <div class="col-md-2">
+                                <div class="table-responsive">
+                                    <table class="table table-hover ">
+                                        <thead class="thead-inverse">
+                                            <tr>
+                                                <th>Buttons</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                        <input type="submit" name="Delete" class="button" value="Delete"/>
+                                        </tbody>
+                                    </table>
+                                </div>
 
+                        </div>
+
+                        <div class="col-md-2">
                             <div class="table-responsive">
                                 <table class="table table-hover ">
                                     <thead class="thead-inverse">
@@ -58,8 +82,15 @@
                                     <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
                                     <!--/*@thymesVar id="folders" type="java.util.Set"*/-->
                                     <!--/*@thymesVar id="folder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
-                                    <tr th:each="folder : ${folders}" th:if="${folders!=null && folders.isEmpty()==false}">
-                                        <td><a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >Subfolder name</a></td>
+                                    <tr th:each="folder, folderStat : *{folders}" th:if="${folders!=null && folders.isEmpty()==false}">
+                                        <td>
+                                            <a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >
+                                                Subfolder name
+                                            </a>
+                                            <input type="checkbox" th:field="*{folders[__${folderStat.index}__].isSelected}" th:id="${#ids.seq('isMyFolderSelected')}">
+                                            <input type="hidden" th:field="*{folders[__${folderStat.index}__].name}">
+                                            <input type="hidden" th:field="*{folders[__${folderStat.index}__].id}">
+                                        </td>
                                     </tr>
                                     </tbody>
                                 </table>
@@ -76,7 +107,7 @@
                                     <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
                                     <!--/*@thymesVar id="folders" type="java.util.Set"*/-->
                                     <!--/*@thymesVar id="folder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
-                                    <tr th:each="folder : ${folders}" th:if="${folders!=null && folders.isEmpty()==false}">
+                                    <tr th:each="folder : *{folders}" th:if="${folders!=null && folders.isEmpty()==false}">
                                         <td><a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >Subfolder name</a></td>
                                     </tr>
                                     </tbody>
@@ -95,14 +126,17 @@
                                  th:src="@{'/photos/' + ${photos.iterator().next().getId()} + '/image'}"
                                  width="100%" height="auto" th:if="${selectedFilePhoto == null && photos != null && photos.isEmpty()==false}">
                         </div>
+
                     </div>
 
                     <div class="row">
-                        <div class="col-md-12" >
-                            <table style="margin-top: 20px">
+                        <div class="col-md-12" style="margin-top: 20px;">
+                            <div class="scrollableBody">
+                            <table>
+
                                 <!--/*@thymesVar id="photo" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
-                                <tr th:each="indraw : ${photosTable}">
-                                    <td th:each="photo : ${indraw}">
+                                <tr th:each="curRaw, indRawStat : ${photosTable}">
+                                    <td th:each="photo, indColStat : ${curRaw}">
                                         <figure>
                                             <a th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}">
                                                 <img th:src="@{'/photos/' + ${photo.getId()} + '/image'}"
@@ -114,18 +148,25 @@
                                             </a>
 
                                         <figcaption>
-                                            <a href="#" th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}"
+                                            <a href="#" th:if="${photo.getBeingEdited()==false}" th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}"
                                                 th:text="${photo.getName()}" >Photo</a>
+                                            <input th:if="${photo.getBeingEdited()==false}" type="hidden" th:field="*{photos[__${indRawStat.index*photosRawSize + indColStat.index}__].name}" />
+                                            <input th:if="${photo.getBeingEdited()==true}" th:field="*{photos[__${indRawStat.index*photosRawSize + indColStat.index}__].name}" />
 
-                                            <a href="#" th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}"
-                                               th:text="${photo.getName()}" >Photo</a>
+                                            <input type="image" width="8%" height="auto" th:src="@{'/photos/' + ${foldersPhotosDTO.getStaticPictureEditPen().getId()} + '/image'}" alt="Edit"
+                                            th:formaction="@{'/photos/switchPhotoBeingEdited/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}"/>
+
+                                            <input type="checkbox" th:field="*{photos[__${indRawStat.index*photosRawSize + indColStat.index}__].isSelected}" />
+                                            <input type="hidden" th:field="*{photos[__${indRawStat.index*photosRawSize + indColStat.index}__].id}" />
                                         </figcaption>
                                         </figure>
                                     </td>
                                 </tr>
                             </table>
+                            </div>
                         </div>
                     </div>
+                    </form>
                 </div>
             </div>
         </div>

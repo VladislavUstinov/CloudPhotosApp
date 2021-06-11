@@ -2,8 +2,11 @@ package com.laserdiffraction01.laserdiffraction01.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.laserdiffraction01.laserdiffraction01.DTO.FoldersPhotosDTO;
+import com.laserdiffraction01.laserdiffraction01.bootstrap.LaserDiffractionBootStrap;
 import com.laserdiffraction01.laserdiffraction01.domain.FilePhoto;
 import com.laserdiffraction01.laserdiffraction01.domain.Folder;
+import com.laserdiffraction01.laserdiffraction01.domain.TestEntityList;
 import com.laserdiffraction01.laserdiffraction01.domain.User;
 import com.laserdiffraction01.laserdiffraction01.repository.FilePhotoRepository;
 import com.laserdiffraction01.laserdiffraction01.repository.RoleRepository;
@@ -34,6 +37,8 @@ public class ContentController {
     private final ImageService imageService;
     private final FilePhotoRepository filePhotoRepository;
 
+    static public int AMOUNT_OF_PHOTOS_IN_RAW = 4;
+
     public ContentController(UserService userService, RoleRepository roleRepository, FolderService folderService, ImageService imageService, FilePhotoRepository filePhotoRepository) {
         this.userService = userService;
         this.roleRepository = roleRepository;
@@ -47,6 +52,8 @@ public class ContentController {
 
         return "index";
     }
+
+    ///////////////////////  photos and folders      //////////////////
 
     @GetMapping("/photos/{folderId}")
     String getCurrentFolder(@PathVariable String folderId, Model model){//}, @ModelAttribute("currentFolder") Folder currentFolder){
@@ -70,6 +77,14 @@ public class ContentController {
             return "photos";//todo add error
         }
 
+        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+
+        if (staticPictureEditPen == null)
+            log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
+
+        FoldersPhotosDTO foldersPhotosDTO = new FoldersPhotosDTO(new ArrayList<>(folder.getFilePhotos()),                 new ArrayList<>(folder.getSubFolders()), staticPictureEditPen);
+
+        model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
         model.addAttribute("parent", folder.getParent());
         model.addAttribute("folders", folder.getSubFolders());
         model.addAttribute("photos", folder.getFilePhotos());
@@ -83,7 +98,7 @@ public class ContentController {
     public void addPhotosTableToModel (Model model, Folder folder) {
         Set<FilePhoto> photos = folder.getFilePhotos();
 
-        int n = 4;
+        int n = AMOUNT_OF_PHOTOS_IN_RAW;
         int m = (int)Math.ceil(folder.getFilePhotos().size()/((double)n));
 
         Iterator<FilePhoto> iterator = photos.iterator();
@@ -100,6 +115,7 @@ public class ContentController {
         }
 
         model.addAttribute("photosTable", photosTable);
+        model.addAttribute("photosRawSize", AMOUNT_OF_PHOTOS_IN_RAW);
     }
 
 
@@ -114,6 +130,22 @@ public class ContentController {
         if (root == null)
             return "photos";//todo add error
 
+
+        FilePhoto photoPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+        if (photoPen == null)
+            log.error("DID NOT LOAD photoPen in ContentController.get..Root");
+
+        log.debug("photoPen name = " + photoPen.getName());
+
+        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+
+        if (staticPictureEditPen == null)
+            log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
+
+        FoldersPhotosDTO foldersPhotosDTO = new FoldersPhotosDTO(new ArrayList<>(root.getFilePhotos()),
+                                                            new ArrayList<>(root.getSubFolders()), staticPictureEditPen);
+
+        model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
         model.addAttribute("folders", root.getSubFolders());
         model.addAttribute("photos", root.getFilePhotos());
         model.addAttribute("currentFolder", root);
@@ -121,6 +153,44 @@ public class ContentController {
         addPhotosTableToModel (model, root);
 
         return "photos";
+    }
+
+    ////////////// working with selected folders and photos
+
+    @PostMapping("photos/{folderId}/deleteSelected/")
+    public String deleteSelectedPhotosAndFolders (@PathVariable String folderId, @ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO) {
+      /*  log.debug("ContentController.testPostBooleanListFirst: folders.size() = " + foldersPhotosDTO.getFolders().size()
+        + " ; photos.size() = " + foldersPhotosDTO.getPhotos().size());
+
+        log.debug("My selected folders:");
+        for (Folder folder : foldersPhotosDTO.getFolders())
+            log.debug("name  = " + folder.getName() + " ; id = " + folder.getId() + " ; isSelected = " + folder.getIsSelected());
+
+        log.debug("Selected photos:");
+        for (FilePhoto photo : foldersPhotosDTO.getPhotos())
+            log.debug("name  = " + photo.getName() + " ; id = " + photo.getId() + " ; isSelected = " + photo.getIsSelected());
+*/
+        // delete selected folders by Ids:
+        Set<Long> foldersIdToBeDeleted = new HashSet<>();
+
+        for (Folder folder : foldersPhotosDTO.getFolders())
+            if (folder.getIsSelected())
+                foldersIdToBeDeleted.add(folder.getId());
+
+        if (!foldersIdToBeDeleted.isEmpty())
+            folderService.deleteFoldersById(foldersIdToBeDeleted);
+
+        //delete selected photos by Ids:
+        Set<Long> photosIdToBeDeleted = new HashSet<>();
+
+        for (FilePhoto photo : foldersPhotosDTO.getPhotos())
+            if (photo.getIsSelected())
+                photosIdToBeDeleted.add(photo.getId());
+
+        if (!photosIdToBeDeleted.isEmpty())
+            imageService.deletePhotosById(photosIdToBeDeleted);
+
+        return "redirect:/photos/"+folderId;
     }
 
     ////////////// working with images
@@ -131,6 +201,34 @@ public class ContentController {
         imageService.saveImageFile(Long.valueOf(folderId), file);
 
         return "redirect:/photos/" + folderId;
+    }
+
+    @PostMapping("photos/switchPhotoBeingEdited/{currentFolderId}/selectphoto/{selectedPhotoId}")
+    public String switchPhotoBeingEditedStatus (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable String currentFolderId, @PathVariable String selectedPhotoId, Model model){
+        Optional<FilePhoto> filePhotoOptional = filePhotoRepository.findById(Long.valueOf(selectedPhotoId));
+
+        if (filePhotoOptional.isPresent()) {
+            FilePhoto filePhoto = filePhotoOptional.get();
+
+            if (filePhoto.getBeingEdited())
+                for (int i = 0; i < foldersPhotosDTO.getPhotos().size(); i ++)
+                    if (foldersPhotosDTO.getPhotos().get(i).getId().equals(Long.valueOf(selectedPhotoId)))
+                        filePhoto.setName(foldersPhotosDTO.getPhotos().get(i).getName());
+
+            filePhoto.setBeingEdited(!filePhoto.getBeingEdited());
+
+            filePhotoRepository.save(filePhoto);
+
+            getCurrentFolder(currentFolderId, model);
+
+            log.debug("ContentController.switchPhotoBeingEditedStatus() worked fine");
+            return "photos";
+        }
+        else {
+            //todo add error
+            log.error("ContentController.switchPhotoBeingEditedStatus: filePhoto is NOT FOUND id = " + selectedPhotoId);
+            return "photos";
+        }
     }
 
     @GetMapping("photos/currentFolder/{currentFolderId}/selectphoto/{selectedPhotoId}")
@@ -178,3 +276,20 @@ public class ContentController {
 
     }
 }
+
+/*
+//Была попытка сделать href с img в форме карандашика edit. Все работало, кроме того что передавалось старое имя name
+<a th:href="@{'/photos/switchPhotoBeingEdited/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()} + '/photoName/' + ${foldersPhotosDTO.getPhotos().get(indRawStat.index*photosRawSize + indColStat.index).name}}">
+    <img th:src="@{'/photos/' + ${foldersPhotosDTO.getStaticPictureEditPen().getId()} + '/image'}"
+        th:class="img"
+        th:alt="edit"
+        width="8%" height="auto" th:if="${foldersPhotosDTO.getStaticPictureEditPen() != null}"
+        th:alt-title="edit"
+        th:title="edit">
+</a>
+
+
+//Пытаюсь сделать scroll таблицы с  - виден скролл, но не работает:
+<table style="margin-top: 20px;" th:scrolling="yes">
+<tbody style="margin-top: 20px;overflow-y: scroll; display: block">
+ */

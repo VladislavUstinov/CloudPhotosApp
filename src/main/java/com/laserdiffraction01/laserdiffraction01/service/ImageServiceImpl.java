@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -22,6 +25,35 @@ public class ImageServiceImpl implements ImageService{
     public ImageServiceImpl(FilePhotoRepository filePhotoRepository, FolderRepository folderRepository) {
         this.filePhotoRepository = filePhotoRepository;
         this.folderRepository = folderRepository;
+    }
+
+    @Transactional
+    @Override
+    public void deletePhotosById(Set<Long> photosId) {
+        if (photosId == null || photosId.isEmpty())
+            return;
+
+        //todo: точно не лучше просто вызвать filePhotoRepository.deleteAll и все?
+        // todo: может нужно сохранить изменения в папке?
+
+        Iterable<FilePhoto> iterablePhotos = filePhotoRepository.findAllById(photosId);
+        if (iterablePhotos == null)
+            return;
+
+        Iterator<FilePhoto> iterPhotos = iterablePhotos.iterator();
+
+        if (iterPhotos == null || iterPhotos.hasNext()==false)
+            return;
+
+        while (iterPhotos.hasNext()) {
+            FilePhoto photo = iterPhotos.next();
+            if (photo.getFolder() != null) {
+                photo.getFolder().getFilePhotos().remove(photo);
+                photo.setFolder(null);
+            }
+        }
+
+        filePhotoRepository.deleteAll(iterablePhotos);
     }
 
     @Override

@@ -31,6 +31,8 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
     private final FolderRepository folderRepository;
     private final FilePhotoRepository filePhotoRepository;
 
+    public static int AMOUNT_OF_PREDEFIENED_SAMPLE_PHOTOS_ROOT_FOLDER = 30;
+    public static String PREDEFINED_STATIC_PICTURE_EDIT_PEN = "staticPictureEditPen";
 
     //private final BCryptPasswordEncoder bCryptPasswordEncoder;
     //@Autowired
@@ -50,18 +52,42 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
         this.filePhotoRepository = filePhotoRepository;
     }
 
+    public void loadStaticImageInFilePhotoRepository (String name, String path) {
+        byte[] imageFileContent = null;
+
+        File file = new File(path);
+        try {
+            imageFileContent = Files.readAllBytes(file.toPath());
+        } catch (IOException e) {
+            log.error("IMAGE FILE NOT FOUND when Bootstrap.onApplicationEvent.loadStaticImageInFilePhotoRepository\n");
+            e.printStackTrace();
+        }
+
+        FilePhoto filePhoto = new FilePhoto (name, imageFileContent);
+        filePhotoRepository.save(filePhoto);
+
+        log.debug ("Have successfully loaded static image with name = " + name);
+        log.debug ("filePhotoRepository.count() = " + filePhotoRepository.count());
+    }
+
     @Override
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
+        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_PEN, "C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\pen.jpg");
+
         Role userRole = new Role(1L, Role.USER_ROLE_STRING);
         Role adminRole = new Role(2L, Role.ADMIN_ROLE_STRING);
 
-
-        byte[] sampleImageFileContent = null;
+        byte[] sampleImageFileContent1 = null;
+        byte[] sampleImageFileContent2 = null;
         try {
             //todo - why normal source path doesn't work? "static/images/guacamole400x400.jpg"
-            File file = new File("C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\guacamole400x400.jpg");
-            sampleImageFileContent = Files.readAllBytes(file.toPath());
+            File file1 = new File("C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\guacamole400x400.jpg");
+            sampleImageFileContent1 = Files.readAllBytes(file1.toPath());
+
+            File file2 = new File("C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\tacos400x400.jpg");
+            sampleImageFileContent2 = Files.readAllBytes(file2.toPath());
+
         } catch (IOException e) {
             log.error("IMAGE FILE NOT FOUND when Bootstrap.onApplicationEvent\n");
             e.printStackTrace();
@@ -80,32 +106,47 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
         log.debug("userRepository.count() = " + userRepository.count());
         log.debug("Have successfully loaded Bootstrap Data - Users");
 
+        log.debug ("filePhotoRepository.count() = " + filePhotoRepository.count());
 
-        setFoldersAndPhotos (users, sampleImageFileContent);
+        setFoldersAndPhotos (users, sampleImageFileContent1, sampleImageFileContent2);
+
+
     }
 
-    private void setFoldersAndPhotos (List<User> users, byte[] sampleImageFileContent) {
-        setFoldersAndPhotosSingleUser (0L, 0L, users.get(0), "0", sampleImageFileContent);
-        setFoldersAndPhotosSingleUser (3L, 6L, users.get(1), "1", sampleImageFileContent);
+    private void setFoldersAndPhotos (List<User> users, byte[] sampleImageFileContent1, byte[] sampleImageFileContent2) {
+        setFoldersAndPhotosSingleUser (0L, users.get(0), "0", sampleImageFileContent1, sampleImageFileContent2);
+        setFoldersAndPhotosSingleUser (3L, users.get(1), "1", sampleImageFileContent1, sampleImageFileContent2);
 
         log.debug("folderRepository.count() = " + folderRepository.count());
         log.debug("filePhotoRepository.count() = " + filePhotoRepository.count());
         log.debug("Have successfully loaded Bootstrap Data - Folders and Photos");
+
+        /*log.debug("Full print of all photos in repository:");
+        Iterator<FilePhoto> iter = filePhotoRepository.findAll().iterator();
+
+        while (iter.hasNext()) {
+            FilePhoto photo = iter.next();
+
+            log.debug("name = " + photo.getName() + " ; id = " + photo.getId());
+        }*/
     }
 
-    private void setFoldersAndPhotosSingleUser (Long startIndexFolders, Long startIndexPhotos, User user, String userNumber, byte[] sampleImageFileContent){
+    private void setFoldersAndPhotosSingleUser (Long startIndexFolders, User user, String userNumber, byte[] sampleImageFileContent1, byte[] sampleImageFileContent2){
         //rootFolder0
         Folder rootFolder0 = new Folder(startIndexFolders+1L, "root"+userNumber);
         rootFolder0.addOwner (user);
 
         user.setRoot(rootFolder0);
 
-        ArrayList<FilePhoto> rootPhotos = new ArrayList<>();
-        int amountPhotosInRoot = 10;
+        int amountPhotosInRoot = AMOUNT_OF_PREDEFIENED_SAMPLE_PHOTOS_ROOT_FOLDER;
         for (int i = 0; i < amountPhotosInRoot; i ++) {
-            FilePhoto photoIndex0 = new FilePhoto (startIndexPhotos+1L+i, "photo" + i + "" +userNumber, sampleImageFileContent);
+            FilePhoto photoIndex0 = null;
+            if (i % 2 == 0)
+                photoIndex0 = new FilePhoto ("photo" + i + "" +userNumber, sampleImageFileContent1);
+            else
+                photoIndex0 = new FilePhoto ("photo" + i + "" +userNumber, sampleImageFileContent2);
+
             rootFolder0.addFilePhoto (photoIndex0);
-            rootPhotos.add(photoIndex0);
         }
 
         //subFolder10
@@ -113,8 +154,8 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
         rootFolder0.addSubFolder (subFolder10);
         subFolder10.addOwner (user);
 
-        FilePhoto photo110 = new FilePhoto (startIndexPhotos+amountPhotosInRoot+1L, "photo11"+userNumber, sampleImageFileContent);
-        FilePhoto photo210 = new FilePhoto (startIndexPhotos+amountPhotosInRoot+2L, "photo21"+userNumber, sampleImageFileContent);
+        FilePhoto photo110 = new FilePhoto ("photo11"+userNumber, sampleImageFileContent1);
+        FilePhoto photo210 = new FilePhoto ("photo21"+userNumber, sampleImageFileContent2);
 
         subFolder10.addFilePhoto (photo110);
         subFolder10.addFilePhoto (photo210);
@@ -124,23 +165,25 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
         rootFolder0.addSubFolder (subFolder20);
         subFolder20.addOwner (user);
 
-        FilePhoto photo120 = new FilePhoto (startIndexPhotos+amountPhotosInRoot+3L, "photo12"+userNumber, sampleImageFileContent);
-        FilePhoto photo220 = new FilePhoto (startIndexPhotos+amountPhotosInRoot+4L, "photo22"+userNumber, sampleImageFileContent);
+        FilePhoto photo120 = new FilePhoto ("photo12"+userNumber, sampleImageFileContent1);
+        FilePhoto photo220 = new FilePhoto ("photo22"+userNumber, sampleImageFileContent2);
 
         subFolder20.addFilePhoto (photo120);
         subFolder20.addFilePhoto (photo220);
 
         folderRepository.save (rootFolder0);
-        folderRepository.save (subFolder10);
-        folderRepository.save (subFolder20);
+        //folderRepository.save (subFolder10);
+        //folderRepository.save (subFolder20);
 
-        filePhotoRepository.saveAll (rootPhotos);
+        //filePhotoRepository.saveAll (rootPhotos);
 
-        filePhotoRepository.save (photo110);
-        filePhotoRepository.save (photo210);
+        //filePhotoRepository.save (photo110);
+        //filePhotoRepository.save (photo210);
 
-        filePhotoRepository.save (photo120);
-        filePhotoRepository.save (photo220);
+        //filePhotoRepository.save (photo120);
+        //filePhotoRepository.save (photo220);
+
+        log.debug ("filePhotoRepository.count() = " + filePhotoRepository.count());
     }
 
     private List<User> getUsersWithRoleUser(Role userRole) {
