@@ -136,13 +136,13 @@
 
                                 <!--/*@thymesVar id="photo" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
                                 <tr th:each="curRaw, indRawStat : ${photosTable}">
-                                    <td th:each="photo, indColStat : ${curRaw}">
+                                    <td th:each="photo, indColStat : ${curRaw}" class="col-md-3">
                                         <figure>
                                             <a th:href="@{'/photos/currentFolder/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}">
                                                 <img th:src="@{'/photos/' + ${photo.getId()} + '/image'}"
                                                     th:class="img-thumbnail"
                                                     th:alt="${photo.getName()}"
-                                                    width="80%" height="auto" th:if="${photo.getImage() != null}"
+                                                    width="100%" height="auto" th:if="${photo.getImage() != null}"
                                                     th:alt-title="${photo.getName()}"
                                                     th:title="hi">
                                             </a>
@@ -166,6 +166,8 @@
                             </div>
                         </div>
                     </div>
+
+
                     </form>
                 </div>
             </div>

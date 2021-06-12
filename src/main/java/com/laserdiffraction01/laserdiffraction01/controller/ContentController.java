@@ -37,6 +37,7 @@ public class ContentController {
     private final ImageService imageService;
     private final FilePhotoRepository filePhotoRepository;
 
+    //AMOUNT_OF_PHOTOS_IN_RAW should be modified together with <td class="col-md-3"> in photos.html Here, 3 = 12/AMOUNT_OF_PHOTOS_IN_RAW
     static public int AMOUNT_OF_PHOTOS_IN_RAW = 4;
 
     public ContentController(UserService userService, RoleRepository roleRepository, FolderService folderService, ImageService imageService, FilePhotoRepository filePhotoRepository) {
