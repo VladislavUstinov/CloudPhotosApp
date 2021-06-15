@@ -19,4 +19,6 @@ public interface FolderService {
     boolean createNewFolder(Long currentFolderId, String newFolderName);
 
     boolean shareSelectedFolders(Long currentFolderId, FoldersPhotosDTO foldersPhotosDTO, User newUser);
+
+    public boolean save (Folder folder);
 }

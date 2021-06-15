@@ -23,6 +23,7 @@ public class Folder {
     private String name = "";
 
     private Boolean isSelected = false;
+    private Boolean beingEdited = false;
 
     //пользователи - владельцы папки. В будущем можно несколько вариантов, у кого какие права доступа
     @ManyToMany(fetch = FetchType.EAGER)

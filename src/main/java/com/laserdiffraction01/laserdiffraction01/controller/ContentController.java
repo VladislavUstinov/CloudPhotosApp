@@ -13,6 +13,7 @@ import com.laserdiffraction01.laserdiffraction01.service.ImageService;
 import com.laserdiffraction01.laserdiffraction01.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -343,6 +344,40 @@ public class ContentController {
 
         }
         return "redirect:/photos/" + folderId;
+    }
+
+    @PostMapping("photos/switchFolderBeingEdited/{currentFolderId}/selectFolder/{selectedFolderId}")
+    public String switchFolderBeingEditedStatus (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, @PathVariable("selectedFolderId") String selectedFolderId, Model model){
+
+        Folder folder = folderService.getFolderById(Long.valueOf(selectedFolderId));
+
+        if (folder!=null) {
+            log.debug("ContentController.switchFolderBeingEditedStatus() folder old name = " + folder.getName());
+
+            if (folder.getBeingEdited())
+                for (int i = 0; i < foldersPhotosDTO.getFolders().size(); i ++)
+                    if (foldersPhotosDTO.getFolders().get(i).getId().equals(folder.getId())) {
+                        log.debug("Setting new name = " + foldersPhotosDTO.getFolders().get(i).getName());
+                        folder.setName(foldersPhotosDTO.getFolders().get(i).getName());
+                        break;
+                    }
+
+            log.debug("ContentController.switchFolderBeingEditedStatus() folder new name = " + folder.getName());
+
+            folder.setBeingEdited(!folder.getBeingEdited());
+
+            folderService.save (folder);
+
+            getCurrentFolder(currentFolderId, model);
+
+            log.debug("ContentController.switchFolderBeingEditedStatus() worked fine");
+            return "photos";
+        }
+        else {
+            //todo add error
+            log.error("ContentController.switchFolderBeingEditedStatus: folder is NOT FOUND id = " + currentFolderId);
+            return "photos";
+        }
     }
 
     @PostMapping("photos/switchPhotoBeingEdited/{currentFolderId}/selectphoto/{selectedPhotoId}")

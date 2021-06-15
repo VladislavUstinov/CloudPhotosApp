@@ -185,4 +185,18 @@ public class FolderServiceImpl implements FolderService {
         return true;
     }
 
+    @Override
+    public boolean save(Folder folder) {
+        if (folder == null)
+            return false;
+
+        Folder saved = folderRepository.save(folder);
+
+        if (folder.equals(saved))
+            return true;
+
+        log.error("FolderServiceImpl.save() FAILED TO SAVE FOLDER IN REPOSITORY id = " + folder.getId () + " ; name = " + folder.getName());
+        return false;
+    }
+
 }

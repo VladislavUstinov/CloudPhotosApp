@@ -205,8 +205,16 @@
                                                     <a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >
                                                         Subfolder name
                                                     </a>
+
+                                                    <input th:if="${folder.getBeingEdited()==false}" type="hidden" th:field="*{folders[__${folderStat.index}__].name}" />
+                                                    <input th:if="${folder.getBeingEdited()==true}" th:field="*{folders[__${folderStat.index}__].name}" />
+
+                                                    <input type="image" width="8%" height="auto" th:src="@{'/photos/' + ${foldersPhotosDTO.getStaticPictureEditPen().getId()} + '/image'}" alt="Edit"
+                                                           th:formaction="@{'/photos/switchFolderBeingEdited/' + ${currentFolder.getId()} + '/selectFolder/' + ${folder.getId()}}"/>
+
+
                                                     <input type="checkbox" th:field="*{folders[__${folderStat.index}__].isSelected}" th:id="${#ids.seq('isMyFolderSelected')}">
-                                                    <input type="hidden" th:field="*{folders[__${folderStat.index}__].name}">
+
                                                     <input type="hidden" th:field="*{folders[__${folderStat.index}__].id}">
                                                 </td>
                                             </tr>
