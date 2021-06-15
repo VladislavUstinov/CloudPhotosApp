@@ -1,5 +1,6 @@
 package com.laserdiffraction01.laserdiffraction01.service;
 
+import com.laserdiffraction01.laserdiffraction01.DTO.FoldersPhotosDTO;
 import com.laserdiffraction01.laserdiffraction01.domain.FilePhoto;
 import com.laserdiffraction01.laserdiffraction01.domain.Folder;
 import com.laserdiffraction01.laserdiffraction01.domain.User;
@@ -101,6 +102,87 @@ public class FolderServiceImpl implements FolderService {
 
             folderRepository.delete(folder);
         }
+    }
+
+    @Override
+    public boolean createNewFolder(Long currentFolderId, String newFolderName) {
+        Folder currentFolder = getFolderById(currentFolderId);
+        if (currentFolder == null) {
+            log.error("FolderService.createNewFolder(...).getFolderById() returned null. folderId = " + currentFolderId);
+            return false;
+        }
+
+        currentFolder.addNewSubFolder (newFolderName);
+
+        log.debug("FolderService.createNewFolder(): BEFORE REPO SAVE new folder id = " +
+                currentFolder.getSubFolders().stream().filter((folder -> folder.getName().equals(newFolderName)))
+                        .findFirst().orElse(new Folder(-1L)).getId()
+        );
+
+        folderRepository.save(currentFolder);
+
+        log.debug("FolderService.createNewFolder(): AFTER REPO SAVE new folder id = " +
+                currentFolder.getSubFolders().stream().filter((folder -> folder.getName().equals(newFolderName)))
+                .findFirst().orElse(new Folder(-1L)).getId()
+        );
+
+
+        return true;
+    }
+
+    public boolean shareFolder (Long selectedFolderId, User newOwner) {
+
+        if (newOwner == null){
+            log.error("FolderService.shareFolder() newUser == NULL");
+            return false;
+        }
+
+        Folder selectedFolder = getFolderById(selectedFolderId);
+        if (selectedFolder == null) {
+            log.error("FolderService.shareFolder(...).getFolderById() returned null. folderId = " + selectedFolderId);
+            return false;
+        }
+
+        selectedFolder.addOwner(newOwner);
+
+        folderRepository.save(selectedFolder);
+
+        return true;
+    }
+
+    @Override
+    public boolean shareSelectedFolders(Long currentFolderId, FoldersPhotosDTO foldersPhotosDTO, User newOwner) {
+
+        if (newOwner == null){
+            log.error("FolderService.shareSelectedFolders() newUser == NULL");
+            return false;
+        }
+
+        //если были selected фото в текущей папке, то расшарим всю текущую папку
+        if (foldersPhotosDTO.getPhotos()!= null && !foldersPhotosDTO.getPhotos().isEmpty()) {
+
+            boolean isAnySelected = false;
+            for (FilePhoto photo : foldersPhotosDTO.getPhotos())
+                if (photo.getIsSelected()){
+                    isAnySelected = true;
+                    break;
+                }
+
+            if (isAnySelected)
+                if (!shareFolder(currentFolderId, newOwner))
+                    return false;
+        }
+
+
+        if (foldersPhotosDTO.getFolders()!=null && !foldersPhotosDTO.getFolders().isEmpty())
+            for (Folder modelAttrFolder : foldersPhotosDTO.getFolders())
+                if (modelAttrFolder.getIsSelected())
+                    if (!shareFolder (modelAttrFolder.getId(), newOwner))
+                        return false;
+
+        userRepository.save(newOwner);
+
+        return true;
     }
 
 }

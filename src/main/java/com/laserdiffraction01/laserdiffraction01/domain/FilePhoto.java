@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.io.File;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -33,6 +34,21 @@ public class FilePhoto {
 
     @ManyToOne
     private Folder folder = null;
+
+    public static Byte[] deepCopyImage (Byte[] oldImage) {
+        if (oldImage==null)
+            return null;
+
+        Byte[] newImage = new Byte[oldImage.length];
+        for (int i = 0; i < oldImage.length;i++)
+            newImage[i]=oldImage[i];
+
+        return newImage;
+    }
+
+    public static FilePhoto deepCopyWithoutId (FilePhoto oldPhoto) {
+        return new FilePhoto(oldPhoto.getName(), deepCopyImage (oldPhoto.getImage()), oldPhoto.getFolder());
+    }
 
     @Override
     public boolean equals(Object o) {
@@ -68,6 +84,12 @@ public class FilePhoto {
             image [i] = imageFileContent [i];
     }
 
+    public FilePhoto(String name, Byte[] image, Folder folder) {
+        this.id = id;
+        this.name = name;
+        this.image = image;
+        this.folder = folder;
+    }
 
     public FilePhoto(Long id, String name, Byte[] image, Folder folder) {
         this.id = id;

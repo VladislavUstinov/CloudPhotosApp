@@ -92,6 +92,65 @@
 
                 <div class="panel-body">
                     <div class="row">
+
+
+                        //Хотел сделать одну кнопку для отправки файла вместо двух. А также поменять визуальный вид кнопки "Выберите файл".
+                        //Тут сразу два варианта. onChange не хочет делать submit. onсlick запускается, но файл почему-то не прикладывается - отправляется пустой файл.
+                        <!--/*@thymesVar id="currentFolder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                        <div>
+                            <script>
+                                function thisFileUpload() {
+                                    document.getElementById("imagefile").click();
+                                    document.getElementById("mainForm").append(document.getElementById("imagefile").getAttribute("files"));
+                                    document.getElementById("mainForm").submit();
+                                };
+                            </script>
+                            <label class="btn btn-primary" onclick="thisFileUpload()" >Upload image</label>
+                            <input onchange="document.getElementById(mainForm).submit()"  th:alt-title="${'Choose file'}" alt="Choose file" id="imagefile" name="imagefile" type="file" class="file">
+                            <button  th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/imageuploadform/'}" type="submit" id="submitImageFileButton" class="btn btn-primary">Submit</button>
+                        </div>
+
+                        //Вариант размещения кнопок для загрузки файла в манере на две кнопки и один span
+                        <script>
+                            function runWhenLoaded() { //запуск в <body onload="runWhenLoaded();">
+                                const actualBtn = document.getElementById('imagefile');
+
+                                const fileChosen = document.getElementById('file-chosen');
+                                fileChosen.textContent = "No file chosen";
+
+                                actualBtn.addEventListener('change', function () {
+                                    fileChosen.textContent = this.files[0].name;
+                                    document.getElementById("mainForm").submit();
+                                })
+                            };
+                        </script>
+                            <table>
+                                <tr>
+                                    <td style="padding: 2px;">
+                                        <label class="btn btn-primary" for="imagefile" >Choose file</label>
+                                    </td>
+                                    <td>
+                                        <span id="file-chosen">Hello</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 2px;">
+                                        <button th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/imageuploadform/'}" type="submit" id="submitImageFileButton2" class="btn btn-primary">Send</button>
+                                    </td>
+                                </tr>
+                            </table>
+
+                        <!--/*@thymesVar id="currentFolder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                        // вариант с попыткой изменить название и вид кнопки "Выберите файл". Только старая занимает свое исходное место все равно.
+                        // Возможно лучше просто настроить более грамотно locale.
+                        <div>
+
+                            <label for="imagefile" class="btn">Select Image</label>
+                            //style="opacity: 0"
+                            <input style="visibility:hidden;" th:alt-title="${'Choose file'}" alt="Choose file" id="imagefile" name="imagefile" type="file" class="file">
+                            <button th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/imageuploadform/'}" type="submit" class="btn btn-primary">Submit</button>
+                        </div>
+
                         <div class="col-md-5">
                             <!--/*@thymesVar id="currentFolder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
                             <form  action="http:\\localhost" method="post" enctype="multipart/form-data"

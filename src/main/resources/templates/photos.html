@@ -16,15 +16,34 @@
             integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
             crossorigin="anonymous" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
 
+    <script>
+        function runWhenLoaded() {
+            const imagefileBtn = document.getElementById('imagefile');
+
+            imagefileBtn.addEventListener('change', function () {
+                document.getElementById('mainForm').submit();
+            })
+        };
+    </script>
     <style>
         .scrollableBody{
             height: 700px;
             overflow-y: auto
         }
+
+        mytable {
+            border-collapse: separate;
+            border-spacing: 0 15px;
+        }
+        mytd {
+
+            padding: 5px;
+        }
+
     </style>
 </head>
 
-<body>
+<body onload="runWhenLoaded();">
 <div class="container-fluid" style="margin-top: 20px">
     <div class="row">
         <div class="col-md-9 col-md-offset-1">
@@ -42,7 +61,7 @@
 
                 <div class="panel-body">
 
-                    <form th:object="${foldersPhotosDTO}" th:action="@{'/photos/' + ${currentFolder.getId()} + '/deleteSelected/'}" method="post">
+                    <form id="mainForm" enctype="multipart/form-data" th:object="${foldersPhotosDTO}" th:action="@{'/photos/' + ${currentFolder.getId()} + '/imageuploadform/'}" method="post">
 
                     <div class="row">
 
@@ -55,77 +74,182 @@
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        <input type="submit" name="Delete" class="button" value="Delete"/>
+                                        <tr>
+                                            <td>
+                                                <input type="submit" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/copySelected/'}" name="Copy" class="btn btn-primary" value="Copy"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <input type="submit" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/pasteSelected/'}" name="Paste" class="btn btn-primary" value="Paste"/>
+                                            </td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>
+                                                <input type="submit" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/deleteSelected/'}" name="Delete" class="btn btn-primary" value="Delete"/>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <label class="btn btn-primary" for="imagefile" >Upload file</label>
+                                                <input multiple style="display: none" th:alt-title="${'Choose file'}" alt="Choose file" id="imagefile" name="imagefile" type="file" class="file">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <input value="New folder" type="submit" th:formaction="@{'/photos/startCreatingNewFolder/currentFolder/' + ${currentFolder.getId()}}" name="NewFolder" class="btn btn-primary" th:alt-title="${'New folder'}" alt="New folder">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <input value="Share folders" type="submit" th:formaction="@{'/photos/startSharingFolders/currentFolder/' + ${currentFolder.getId()}}" name="ShareFolders" class="btn btn-primary" th:alt-title="${'Share folders'}" alt="Share folders">
+                                            </td>
+                                        </tr>
+
                                         </tbody>
                                     </table>
                                 </div>
 
                         </div>
 
-                        <div class="col-md-2">
-                            <div class="table-responsive">
-                                <table class="table table-hover ">
-                                    <thead class="thead-inverse">
-                                    <tr>
-                                        <th>My Folders</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
-                                    <tr  th:if="${parent != null}">
-                                        <td>
-                                            <a href="#"  th:href="@{'/photos/' + ${parent.getId()}}" th:text="..">
-                                                Parent folder
-                                            </a>
-                                        </td>
-                                    </tr>
-                                    <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
-                                    <!--/*@thymesVar id="folders" type="java.util.Set"*/-->
-                                    <!--/*@thymesVar id="folder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
-                                    <tr th:each="folder, folderStat : *{folders}" th:if="${folders!=null && folders.isEmpty()==false}">
-                                        <td>
-                                            <a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >
-                                                Subfolder name
-                                            </a>
-                                            <input type="checkbox" th:field="*{folders[__${folderStat.index}__].isSelected}" th:id="${#ids.seq('isMyFolderSelected')}">
-                                            <input type="hidden" th:field="*{folders[__${folderStat.index}__].name}">
-                                            <input type="hidden" th:field="*{folders[__${folderStat.index}__].id}">
-                                        </td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+                        <div class="col-md-10">
+                            <div class="row" th:if="${foldersAreBeingShared!=null}">
+                                <div class="col-md-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover ">
+                                            <thead class="thead-inverse">
+                                            <tr>
+                                                <th>Share folders</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <table style="border-collapse: separate; border-spacing: 0 5px;">
+                                                <tr>
+                                                    <td style="padding: 2px;">
+                                                        <label>Enter user name with whom you want to share selected folders:</label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 2px;">
+                                                        <input th:field="*{newOwnerName}" >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 2px;">
+                                                        <input th:value="Share" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/shareFolders/'}"
+                                                               type="submit" class="btn btn-primary" th:alt-title="${'When input is empty press Share to return'}">
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
                             </div>
 
-                            <div class="table-responsive">
-                                <table class="table table-hover ">
-                                    <thead class="thead-inverse">
-                                    <tr>
-                                        <th>Shared with me</th>
-                                    </tr>
-                                    </thead>
-                                    <tbody>
-                                    <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
-                                    <!--/*@thymesVar id="folders" type="java.util.Set"*/-->
-                                    <!--/*@thymesVar id="folder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
-                                    <tr th:each="folder : *{folders}" th:if="${folders!=null && folders.isEmpty()==false}">
-                                        <td><a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >Subfolder name</a></td>
-                                    </tr>
-                                    </tbody>
-                                </table>
+
+                            <div class="row" th:if="${newFolderIsBeingCreated!=null}">
+                                <div class="col-md-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover ">
+                                            <thead class="thead-inverse">
+                                            <tr>
+                                                <th>Create new folder</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <table style="border-collapse: separate; border-spacing: 0 5px;">
+                                                <tr>
+                                                    <td style="padding: 2px;">
+                                                        <input th:field="*{newFolderName}" >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 2px;">
+                                                        <input th:value="Add" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/createNewFolder/'}"
+                                                               type="submit" class="btn btn-primary" th:alt-title="${'When input is empty press Add to return'}">
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
                             </div>
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover ">
+                                            <thead class="thead-inverse">
+                                            <tr>
+                                                <th>My Folders</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                                            <tr  th:if="${parent != null}">
+                                                <td>
+                                                    <a href="#"  th:href="@{'/photos/' + ${parent.getId()}}" th:text="..">
+                                                        Parent folder
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                            <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                                            <!--/*@thymesVar id="folders" type="java.util.Set"*/-->
+                                            <!--/*@thymesVar id="folder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                                            <tr th:each="folder, folderStat : *{folders}" th:if="${folders!=null && folders.isEmpty()==false}">
+                                                <td>
+                                                    <a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >
+                                                        Subfolder name
+                                                    </a>
+                                                    <input type="checkbox" th:field="*{folders[__${folderStat.index}__].isSelected}" th:id="${#ids.seq('isMyFolderSelected')}">
+                                                    <input type="hidden" th:field="*{folders[__${folderStat.index}__].name}">
+                                                    <input type="hidden" th:field="*{folders[__${folderStat.index}__].id}">
+                                                </td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
 
+                                    <div class="table-responsive">
+                                        <table class="table table-hover ">
+                                            <thead class="thead-inverse">
+                                            <tr>
+                                                <th>Shared with me</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                                            <!--/*@thymesVar id="folders" type="java.util.Set"*/-->
+                                            <!--/*@thymesVar id="folder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
+                                            <tr th:each="folder : *{sharedFolders}" th:if="${foldersPhotosDTO.getSharedFolders()!=null && foldersPhotosDTO.getSharedFolders().isEmpty()==false}">
+                                                <td><a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >Subfolder name</a></td>
+                                            </tr>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+
+                                <div class="col-md-6">
+                                    <!--/*@thymesVar id="selectedFilePhoto" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
+                                    <img src="../../static/images/guacamole400x400WithX.jpg"
+                                         th:src="@{'/photos/' + ${selectedFilePhoto.getId()} + '/image'}"
+                                         width="100%" height="auto" th:if="${selectedFilePhoto != null}">
+
+                                    <img src="../../static/images/guacamole400x400WithX.jpg"
+                                         th:src="@{'/photos/' + ${photos.iterator().next().getId()} + '/image'}"
+                                         width="100%" height="auto" th:if="${selectedFilePhoto == null && photos != null && photos.isEmpty()==false}">
+                                </div>
+
+
+                            </div>
                         </div>
 
-                        <div class="col-md-5">
-                            <!--/*@thymesVar id="selectedFilePhoto" type="laserdiffraction01.laserdiffraction01.domain.FilePhoto"*/-->
-                            <img src="../../static/images/guacamole400x400WithX.jpg"
-                                 th:src="@{'/photos/' + ${selectedFilePhoto.getId()} + '/image'}"
-                                 width="100%" height="auto" th:if="${selectedFilePhoto != null}">
 
-                            <img src="../../static/images/guacamole400x400WithX.jpg"
-                                 th:src="@{'/photos/' + ${photos.iterator().next().getId()} + '/image'}"
-                                 width="100%" height="auto" th:if="${selectedFilePhoto == null && photos != null && photos.isEmpty()==false}">
-                        </div>
 
                     </div>
 
@@ -144,7 +268,7 @@
                                                     th:alt="${photo.getName()}"
                                                     width="100%" height="auto" th:if="${photo.getImage() != null}"
                                                     th:alt-title="${photo.getName()}"
-                                                    th:title="hi">
+                                                    th:title="select">
                                             </a>
 
                                         <figcaption>

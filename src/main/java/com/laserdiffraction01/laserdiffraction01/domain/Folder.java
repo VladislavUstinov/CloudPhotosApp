@@ -53,9 +53,29 @@ public class Folder {
         return Objects.hash(id);
     }
 
+    public Folder(String name) {
+        this.name = name;
+    }
+
+    public Folder(Long id) {
+        this.id = id;
+    }
+
     public Folder(Long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public void addNewSubFolder (String newFolderName){
+        Folder newFolder = new Folder(newFolderName);
+
+        newFolder.setParent(this);
+
+        this.getSubFolders().add(newFolder);
+        newFolder.getOwners().addAll(this.getOwners());
+
+        for (User owner : newFolder.getOwners())
+            owner.getFolders().add(newFolder);
     }
 
     public void addOwner (User owner){

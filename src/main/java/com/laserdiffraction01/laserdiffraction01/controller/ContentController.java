@@ -1,15 +1,13 @@
 package com.laserdiffraction01.laserdiffraction01.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laserdiffraction01.laserdiffraction01.DTO.FoldersPhotosDTO;
 import com.laserdiffraction01.laserdiffraction01.bootstrap.LaserDiffractionBootStrap;
 import com.laserdiffraction01.laserdiffraction01.domain.FilePhoto;
 import com.laserdiffraction01.laserdiffraction01.domain.Folder;
-import com.laserdiffraction01.laserdiffraction01.domain.TestEntityList;
 import com.laserdiffraction01.laserdiffraction01.domain.User;
 import com.laserdiffraction01.laserdiffraction01.repository.FilePhotoRepository;
 import com.laserdiffraction01.laserdiffraction01.repository.RoleRepository;
+import com.laserdiffraction01.laserdiffraction01.service.CopyPasteService;
 import com.laserdiffraction01.laserdiffraction01.service.FolderService;
 import com.laserdiffraction01.laserdiffraction01.service.ImageService;
 import com.laserdiffraction01.laserdiffraction01.service.UserService;
@@ -17,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -36,16 +35,18 @@ public class ContentController {
     private final FolderService folderService;
     private final ImageService imageService;
     private final FilePhotoRepository filePhotoRepository;
+    private final CopyPasteService copyPasteService;
 
     //AMOUNT_OF_PHOTOS_IN_RAW should be modified together with <td class="col-md-3"> in photos.html Here, 3 = 12/AMOUNT_OF_PHOTOS_IN_RAW
     static public int AMOUNT_OF_PHOTOS_IN_RAW = 4;
 
-    public ContentController(UserService userService, RoleRepository roleRepository, FolderService folderService, ImageService imageService, FilePhotoRepository filePhotoRepository) {
+    public ContentController(UserService userService, RoleRepository roleRepository, FolderService folderService, ImageService imageService, FilePhotoRepository filePhotoRepository, CopyPasteService copyPasteService) {
         this.userService = userService;
         this.roleRepository = roleRepository;
         this.folderService = folderService;
         this.imageService = imageService;
         this.filePhotoRepository = filePhotoRepository;
+        this.copyPasteService = copyPasteService;
     }
 
     @GetMapping(value={"/index", "/"})
@@ -67,7 +68,7 @@ public class ContentController {
 
         if (folder == null) {
             log.error("ContentController.getCurrentFolder: folder NOT FOUND id = " + folderId);
-            return "photos";//todo add error
+            return "redirect:/photos/";//todo add error
         }
 
         User user = (User) userService.loadUserByUsername(currentPrincipalName);
@@ -75,7 +76,7 @@ public class ContentController {
         if (folder.getOwners().contains(user) == false) {
             log.error("ContentController.getCurrentFolder: user " + user.getUsername() +
                       " does NOT OWN folder " + folder.getName() + " with folder id = " + folder.getId() );
-            return "photos";//todo add error
+            return "redirect:/photos/";//todo add error
         }
 
         FilePhoto staticPictureEditPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
@@ -83,10 +84,23 @@ public class ContentController {
         if (staticPictureEditPen == null)
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
 
-        FoldersPhotosDTO foldersPhotosDTO = new FoldersPhotosDTO(new ArrayList<>(folder.getFilePhotos()),                 new ArrayList<>(folder.getSubFolders()), staticPictureEditPen);
+        FoldersPhotosDTO foldersPhotosDTO = new FoldersPhotosDTO(new ArrayList<>(folder.getFilePhotos()),
+                                                                 new ArrayList<>(folder.getSubFolders()), getSharedWithMeFoldersToShow (), staticPictureEditPen);
+
+
+        if (folder.getParent() != null && folder.getParent().getOwners().contains(user))
+            model.addAttribute("parent", folder.getParent());
+
+        if (folder.getParent() != null && !folder.getParent().getOwners().contains(user))
+            model.addAttribute("parent", user.getRoot());
+
+        //the other user shared his own root folder and getParent() is null - then I add my own root as parent in order the user to be able to get back to his own folders
+        if (folder.getParent() == null && folder.getOwners().contains(user) && folder.getOwners().size()>=2)
+            model.addAttribute("parent", user.getRoot());
+
 
         model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
-        model.addAttribute("parent", folder.getParent());
+
         model.addAttribute("folders", folder.getSubFolders());
         model.addAttribute("photos", folder.getFilePhotos());
         model.addAttribute("currentFolder", folder);
@@ -119,6 +133,38 @@ public class ContentController {
         model.addAttribute("photosRawSize", AMOUNT_OF_PHOTOS_IN_RAW);
     }
 
+    public List<Folder> getSharedWithMeFoldersToShow (){
+        List<Folder> sharedFolders = new ArrayList<>();
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+
+        User user = (User) userService.loadUserByUsername(currentPrincipalName);
+
+        Set<Folder> allFolders = user.getFolders();
+
+        for (Folder cur : allFolders){
+            Folder parent = cur;
+
+            if (parent.getOwners().contains(user) == false)
+                continue;
+
+            while (parent.getParent() != null && parent.getParent().getOwners().contains(user))
+                parent = parent.getParent();
+
+            if (user.getRoot().equals(parent) == false &&
+                    sharedFolders.contains(parent) == false)
+                sharedFolders.add(parent);
+        }
+
+        log.debug("ContentController.getSharedWithMeFoldersToShow(); resulting array:");
+
+        for (Folder folder : sharedFolders){
+            log.debug("name = " + folder.getName() + " ; id = " + folder.getId());
+        }
+
+        return sharedFolders;
+    }
 
     @GetMapping("/photos")
     String getPhotosAndUsersRoot(Model model){
@@ -144,7 +190,7 @@ public class ContentController {
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
 
         FoldersPhotosDTO foldersPhotosDTO = new FoldersPhotosDTO(new ArrayList<>(root.getFilePhotos()),
-                                                            new ArrayList<>(root.getSubFolders()), staticPictureEditPen);
+                                                            new ArrayList<>(root.getSubFolders()), getSharedWithMeFoldersToShow (), staticPictureEditPen);
 
         model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
         model.addAttribute("folders", root.getSubFolders());
@@ -156,7 +202,98 @@ public class ContentController {
         return "photos";
     }
 
-    ////////////// working with selected folders and photos
+    ////////////// working with main buttons in photos/
+
+    ////////////// create new folder
+    @PostMapping("photos/{currentFolderId}/createNewFolder/")
+    public String addNewFolder (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, Model model){
+        log.debug("ContentController.addNewFolder(): newFolderName = " + foldersPhotosDTO.getNewFolderName());
+        if (foldersPhotosDTO.getNewFolderName() != null && foldersPhotosDTO.getNewFolderName().isEmpty()==false && foldersPhotosDTO.getNewFolderName().isBlank()==false)
+            folderService.createNewFolder(Long.valueOf(currentFolderId), foldersPhotosDTO.getNewFolderName());
+
+        return "redirect:/photos/"+currentFolderId;
+    }
+
+    @PostMapping("photos/startCreatingNewFolder/currentFolder/{currentFolderId}")
+    public String startCreatingNewFolder (@PathVariable("currentFolderId") String currentFolderId, Model model){
+
+        log.debug("ContentController.startCreatingNewFolder(..)");
+        getCurrentFolder(currentFolderId, model);
+
+        model.addAttribute("newFolderIsBeingCreated", true);
+
+        return "photos";
+    }
+
+    //////////////              working with selected folders and photos
+
+    //start sharing selected folders - setting the flag variable
+    @PostMapping("photos/startSharingFolders/currentFolder//{currentFolderId}")
+    public String startSharingFolders (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, Model model){
+        log.debug("ContentController.startSharingFolders(..)");
+        getCurrentFolder(currentFolderId, model);
+
+        model.addAttribute("foldersAreBeingShared", true);
+
+        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+
+        if (staticPictureEditPen == null)
+            log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
+
+        foldersPhotosDTO.setStaticPictureEditPen(staticPictureEditPen);
+
+        model.addAttribute(foldersPhotosDTO);
+
+        return "photos";
+    }
+
+    @PostMapping("photos/{currentFolderId}/shareFolders/")
+    public String shareFolders (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, Model model){
+        log.debug("ContentController.shareFolders(): newOwnerName = " + foldersPhotosDTO.getNewOwnerName());
+
+        if (foldersPhotosDTO.getNewOwnerName() != null && foldersPhotosDTO.getNewOwnerName().isEmpty()==false && foldersPhotosDTO.getNewOwnerName().isBlank()==false){
+            User newUser = null;
+            try {
+                newUser = (User) userService.loadUserByUsername(foldersPhotosDTO.getNewOwnerName());
+            }catch (UsernameNotFoundException e){
+                log.error("ContentController.shareFolders: newOwner USER NOT FOUND, NAME = " + foldersPhotosDTO.getNewOwnerName());
+                //todo add error message here
+                return "redirect:/photos/"+currentFolderId;
+            }
+
+            folderService.shareSelectedFolders(Long.valueOf(currentFolderId), foldersPhotosDTO, newUser);
+        }
+
+
+        return "redirect:/photos/"+currentFolderId;
+    }
+
+    @PostMapping("photos/{currentFolderId}/copySelected/")
+    public String copySelectedPhotosAndFolders (@PathVariable("currentFolderId") String currentFolderId, @ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO) {
+
+        List<Long> copiedPhotosIds = new ArrayList<>();
+        List<Long> copiedFoldersIds = new ArrayList<>();
+
+        for (Folder folder : foldersPhotosDTO.getFolders())
+            if (folder.getIsSelected())
+                copiedFoldersIds.add(folder.getId());
+
+        for (FilePhoto filePhoto : foldersPhotosDTO.getPhotos())
+            if (filePhoto.getIsSelected())
+                copiedPhotosIds.add(filePhoto.getId());
+
+        copyPasteService.setCopied(copiedPhotosIds,copiedFoldersIds);
+
+        return "redirect:/photos/"+currentFolderId;
+    }
+
+    @PostMapping("photos/{currentFolderId}/pasteSelected/")
+    public String pasteSelectedPhotosAndFolders (@PathVariable("currentFolderId") String currentFolderId, @ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO) {
+
+        copyPasteService.pasteCopied(Long.valueOf(currentFolderId));
+
+        return "redirect:/photos/"+currentFolderId;
+    }
 
     @PostMapping("photos/{folderId}/deleteSelected/")
     public String deleteSelectedPhotosAndFolders (@PathVariable String folderId, @ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO) {
@@ -197,10 +334,14 @@ public class ContentController {
     ////////////// working with images
 
     @PostMapping("photos/{folderId}/imageuploadform/")
-    public String handleImagePost(@PathVariable String folderId, @RequestParam("imagefile") MultipartFile file){
+    public String handleImagePost(@PathVariable String folderId, @RequestParam("imagefile") List<MultipartFile> files){
 
-        imageService.saveImageFile(Long.valueOf(folderId), file);
+        for (MultipartFile file : files) {
+            log.debug("ContentController.handleImagePost. Image name = " + file.getOriginalFilename());
+            if (file.getOriginalFilename().isEmpty() == false)
+                imageService.saveImageFile(Long.valueOf(folderId), file);
 
+        }
         return "redirect:/photos/" + folderId;
     }
 

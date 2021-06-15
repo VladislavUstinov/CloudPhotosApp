@@ -17,5 +17,15 @@ import java.util.Set;
 public class FoldersPhotosDTO {
     private List<FilePhoto> photos = new ArrayList<>();
     private List<Folder> folders = new ArrayList<>();
+    private List<Folder> sharedFolders = new ArrayList<>();
     private FilePhoto staticPictureEditPen = new FilePhoto();
+    private String newFolderName = "";
+    private String newOwnerName = "";
+
+    public FoldersPhotosDTO(List<FilePhoto> photos, List<Folder> folders, List<Folder> sharedFolders, FilePhoto staticPictureEditPen) {
+        this.photos = photos;
+        this.folders = folders;
+        this.staticPictureEditPen = staticPictureEditPen;
+        this.sharedFolders=sharedFolders;
+    }
 }
