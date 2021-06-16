@@ -143,9 +143,12 @@ public class FolderServiceImpl implements FolderService {
             return false;
         }
 
-        selectedFolder.addOwner(newOwner);
+        //если предлагаемый владелец и правда новый, а не один из старых, то сделать его действительным владельцем
+        if (!selectedFolder.getOwners().contains(newOwner)) {
+            selectedFolder.addOwner(newOwner);
 
-        folderRepository.save(selectedFolder);
+            folderRepository.save(selectedFolder);
+        }
 
         return true;
     }
@@ -176,6 +179,12 @@ public class FolderServiceImpl implements FolderService {
 
         if (foldersPhotosDTO.getFolders()!=null && !foldersPhotosDTO.getFolders().isEmpty())
             for (Folder modelAttrFolder : foldersPhotosDTO.getFolders())
+                if (modelAttrFolder.getIsSelected())
+                    if (!shareFolder (modelAttrFolder.getId(), newOwner))
+                        return false;
+
+        if (foldersPhotosDTO.getSharedFolders()!=null && !foldersPhotosDTO.getSharedFolders().isEmpty())
+            for (Folder modelAttrFolder : foldersPhotosDTO.getSharedFolders())
                 if (modelAttrFolder.getIsSelected())
                     if (!shareFolder (modelAttrFolder.getId(), newOwner))
                         return false;

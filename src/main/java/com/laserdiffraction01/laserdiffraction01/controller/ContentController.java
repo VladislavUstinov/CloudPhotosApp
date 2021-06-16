@@ -279,6 +279,10 @@ public class ContentController {
             if (folder.getIsSelected())
                 copiedFoldersIds.add(folder.getId());
 
+        for (Folder folder : foldersPhotosDTO.getSharedFolders())
+            if (folder.getIsSelected())
+                copiedFoldersIds.add(folder.getId());
+
         for (FilePhoto filePhoto : foldersPhotosDTO.getPhotos())
             if (filePhoto.getIsSelected())
                 copiedPhotosIds.add(filePhoto.getId());
@@ -313,6 +317,10 @@ public class ContentController {
         Set<Long> foldersIdToBeDeleted = new HashSet<>();
 
         for (Folder folder : foldersPhotosDTO.getFolders())
+            if (folder.getIsSelected())
+                foldersIdToBeDeleted.add(folder.getId());
+
+        for (Folder folder : foldersPhotosDTO.getSharedFolders())
             if (folder.getIsSelected())
                 foldersIdToBeDeleted.add(folder.getId());
 

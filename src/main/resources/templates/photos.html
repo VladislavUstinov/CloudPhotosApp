@@ -234,7 +234,15 @@
                                             <!--/*@thymesVar id="folders" type="java.util.Set"*/-->
                                             <!--/*@thymesVar id="folder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
                                             <tr th:each="folder : *{sharedFolders}" th:if="${foldersPhotosDTO.getSharedFolders()!=null && foldersPhotosDTO.getSharedFolders().isEmpty()==false}">
-                                                <td><a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >Subfolder name</a></td>
+                                                <td>
+                                                    <a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >
+                                                        Subfolder name
+                                                    </a>
+
+                                                    <input type="checkbox" th:field="*{sharedFolders[__${folderStat.index}__].isSelected}">
+                                                    <input type="hidden" th:field="*{sharedFolders[__${folderStat.index}__].name}">
+                                                    <input type="hidden" th:field="*{sharedFolders[__${folderStat.index}__].id}">
+                                                </td>
                                             </tr>
                                             </tbody>
                                         </table>
