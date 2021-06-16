@@ -106,16 +106,16 @@ public class ContentController {
         model.addAttribute("photos", folder.getFilePhotos());
         model.addAttribute("currentFolder", folder);
 
-        addPhotosTableToModel (model, folder);
+        addPhotosTableToModel (model, folder.getFilePhotos());
 
         return "photos";
     }
 
-    public void addPhotosTableToModel (Model model, Folder folder) {
-        Set<FilePhoto> photos = folder.getFilePhotos();
+    public void addPhotosTableToModel (Model model,Set<FilePhoto> photos) {
+      //  Set<FilePhoto> photos = folder.getFilePhotos();
 
         int n = AMOUNT_OF_PHOTOS_IN_RAW;
-        int m = (int)Math.ceil(folder.getFilePhotos().size()/((double)n));
+        int m = (int)Math.ceil(photos.size()/((double)n));
 
         Iterator<FilePhoto> iterator = photos.iterator();
 
@@ -198,23 +198,80 @@ public class ContentController {
         model.addAttribute("photos", root.getFilePhotos());
         model.addAttribute("currentFolder", root);
 
-        addPhotosTableToModel (model, root);
+        addPhotosTableToModel (model, root.getFilePhotos());
 
         return "photos";
     }
 
     ////////////// working with main buttons in photos/
+    ////////////// search button
+    @PostMapping("photos/startSearching/currentFolder/{currentFolderId}")
+    public String startSearching (@PathVariable("currentFolderId") String currentFolderId, Model model){
 
-    ////////////// create new folder
-    @PostMapping("photos/{currentFolderId}/createNewFolder/")
-    public String addNewFolder (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, Model model){
-        log.debug("ContentController.addNewFolder(): newFolderName = " + foldersPhotosDTO.getNewFolderName());
-        if (foldersPhotosDTO.getNewFolderName() != null && foldersPhotosDTO.getNewFolderName().isEmpty()==false && foldersPhotosDTO.getNewFolderName().isBlank()==false)
-            folderService.createNewFolder(Long.valueOf(currentFolderId), foldersPhotosDTO.getNewFolderName());
+        log.debug("ContentController.startSearching(..)");
+        getCurrentFolder(currentFolderId, model);
 
-        return "redirect:/photos/"+currentFolderId;
+        model.addAttribute("SearchingIsBeingDoneNow", true);
+
+        return "photos";
     }
 
+    @PostMapping("photos/{currentFolderId}/search/")
+    public String search (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, Model model){
+        log.debug("ContentController.search(): searchPhrase = " + foldersPhotosDTO.getSearchPhrase());
+
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+
+        Folder currentFolder = folderService.getFolderById(Long.decode(currentFolderId));
+
+        if (currentFolder == null) {
+            log.error("ContentController.search: currentFolder NOT FOUND id = " + currentFolderId);
+            return "redirect:/photos/";//todo add error
+        }
+
+        User user = (User) userService.loadUserByUsername(currentPrincipalName);
+
+        if (foldersPhotosDTO.getSearchPhrase() == null || foldersPhotosDTO.getSearchPhrase().isEmpty() || foldersPhotosDTO.getSearchPhrase().isBlank()) {
+
+            return "redirect:/photos/"+currentFolderId;
+        }
+
+        ArrayList<Folder> foldersSearchResult = new ArrayList<>();
+
+
+        ArrayList<FilePhoto> photosSearchResult = new ArrayList<>();
+
+        folderService.search (foldersSearchResult, photosSearchResult, foldersPhotosDTO.getSearchPhrase(), user);
+
+        //Populate modelAttributes for searchResult.html page
+        if (currentFolder.getOwners().contains(user) == false) {
+            log.error("ContentController.search: user " + user.getUsername() +
+                    " does NOT OWN folder " + currentFolder.getName() + " with folder id = " + currentFolder.getId() );
+            return "redirect:/photos/";//todo add error
+        }
+
+        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+
+        if (staticPictureEditPen == null)
+            log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
+
+        FoldersPhotosDTO newFoldersPhotosDTO = new FoldersPhotosDTO(photosSearchResult,
+                foldersSearchResult, getSharedWithMeFoldersToShow (), staticPictureEditPen);
+
+        model.addAttribute("foldersPhotosDTO", newFoldersPhotosDTO);
+
+        model.addAttribute("folders", foldersSearchResult);
+        model.addAttribute("photos", photosSearchResult);
+        model.addAttribute("currentFolder", currentFolder);
+
+        addPhotosTableToModel (model, new HashSet<>(photosSearchResult));
+
+        return "searchResults";
+    }
+
+    ////////////// create new folder
     @PostMapping("photos/startCreatingNewFolder/currentFolder/{currentFolderId}")
     public String startCreatingNewFolder (@PathVariable("currentFolderId") String currentFolderId, Model model){
 
@@ -224,6 +281,15 @@ public class ContentController {
         model.addAttribute("newFolderIsBeingCreated", true);
 
         return "photos";
+    }
+
+    @PostMapping("photos/{currentFolderId}/createNewFolder/")
+    public String addNewFolder (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, Model model){
+        log.debug("ContentController.addNewFolder(): newFolderName = " + foldersPhotosDTO.getNewFolderName());
+        if (foldersPhotosDTO.getNewFolderName() != null && foldersPhotosDTO.getNewFolderName().isEmpty()==false && foldersPhotosDTO.getNewFolderName().isBlank()==false)
+            folderService.createNewFolder(Long.valueOf(currentFolderId), foldersPhotosDTO.getNewFolderName());
+
+        return "redirect:/photos/"+currentFolderId;
     }
 
     //////////////              working with selected folders and photos

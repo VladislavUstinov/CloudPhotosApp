@@ -75,13 +75,19 @@ public class Folder {
         this.getSubFolders().add(newFolder);
         newFolder.getOwners().addAll(this.getOwners());
 
-        for (User owner : newFolder.getOwners())
+        for (User owner : this.getOwners())
             owner.getFolders().add(newFolder);
     }
 
     public void addOwner (User owner){
-        owners.add(owner);
-        owner.getFolders().add(this);
+        if (!owners.contains(owner))
+            owners.add(owner);
+
+        if (!owner.getFolders().contains(this))
+            owner.getFolders().add(this);
+
+        for (Folder folder : subFolders)
+            folder.addOwner (owner);
     }
 
     public void addFilePhoto (FilePhoto photo){
@@ -91,6 +97,8 @@ public class Folder {
     public void addSubFolder (Folder subFolder){
         subFolders.add(subFolder);
         subFolder.setParent(this);
+        for (User owner : owners)
+            subFolder.addOwner(owner);
     }
 
 }

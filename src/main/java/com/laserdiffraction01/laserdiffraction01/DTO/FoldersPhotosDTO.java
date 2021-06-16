@@ -21,6 +21,7 @@ public class FoldersPhotosDTO {
     private FilePhoto staticPictureEditPen = new FilePhoto();
     private String newFolderName = "";
     private String newOwnerName = "";
+    private String searchPhrase = "";
 
     public FoldersPhotosDTO(List<FilePhoto> photos, List<Folder> folders, List<Folder> sharedFolders, FilePhoto staticPictureEditPen) {
         this.photos = photos;
@@ -28,5 +29,4 @@ public class FoldersPhotosDTO {
         this.staticPictureEditPen = staticPictureEditPen;
         this.sharedFolders=sharedFolders;
     }
-    //hi
 }

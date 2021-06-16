@@ -13,9 +13,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.io.File;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -206,6 +204,40 @@ public class FolderServiceImpl implements FolderService {
 
         log.error("FolderServiceImpl.save() FAILED TO SAVE FOLDER IN REPOSITORY id = " + folder.getId () + " ; name = " + folder.getName());
         return false;
+    }
+
+    @Override
+    public void search(List<Folder> resultFolders, List<FilePhoto> resultPhotos, String searchPhrase, User user) {
+
+        if (searchPhrase == null || searchPhrase.isEmpty() || searchPhrase.isBlank()) {
+            log.error("FolderServiceImpl.search was called with searchPhrase=" + searchPhrase);
+            return;
+        }
+
+        if (user == null || user.getRoot() == null){
+            log.error("FolderServiceImpl.search was called with user == null or user.getRoot() == null, where user is " + user);
+            return;
+        }
+
+        searchFoldersTree (resultFolders, resultPhotos, searchPhrase, user.getFolders());
+    }
+
+    public void searchFoldersTree(List<Folder> resultFolders, List<FilePhoto> resultPhotos, String searchPhrase, Set<Folder> currentFolders) {
+        if (currentFolders == null)
+            return;
+
+        for (Folder folder : currentFolders) {
+            if (folder.getName().contains(searchPhrase))
+               // if (!resultFolders.contains(folder))
+                    resultFolders.add(folder);
+
+            for (FilePhoto photo : folder.getFilePhotos())
+                if (photo.getName().contains(searchPhrase))
+                 //   if (!resultPhotos.contains(photo))
+                        resultPhotos.add(photo);
+
+            //searchFoldersTree(resultFolders, resultPhotos, searchPhrase, folder.getSubFolders());
+        }
     }
 
 }

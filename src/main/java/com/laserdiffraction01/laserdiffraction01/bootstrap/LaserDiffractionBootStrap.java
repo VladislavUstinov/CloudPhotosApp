@@ -109,8 +109,6 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
         log.debug ("filePhotoRepository.count() = " + filePhotoRepository.count());
 
         setFoldersAndPhotos (users, sampleImageFileContent1, sampleImageFileContent2);
-
-//hi
     }
 
     private void setFoldersAndPhotos (List<User> users, byte[] sampleImageFileContent1, byte[] sampleImageFileContent2) {

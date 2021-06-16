@@ -103,6 +103,11 @@
                                         </tr>
                                         <tr>
                                             <td>
+                                                <input value="Search" type="submit" th:formaction="@{'/photos/startSearching/currentFolder/' + ${currentFolder.getId()}}" name="Search" class="btn btn-primary" th:alt-title="${'Search'}" alt="Search">
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
                                                 <input value="Share folders" type="submit" th:formaction="@{'/photos/startSharingFolders/currentFolder/' + ${currentFolder.getId()}}" name="ShareFolders" class="btn btn-primary" th:alt-title="${'Share folders'}" alt="Share folders">
                                             </td>
                                         </tr>
@@ -114,6 +119,41 @@
                         </div>
 
                         <div class="col-md-10">
+                            <div class="row" th:if="${SearchingIsBeingDoneNow!=null}">
+                                <div class="col-md-12">
+                                    <div class="table-responsive">
+                                        <table class="table table-hover ">
+                                            <thead class="thead-inverse">
+                                            <tr>
+                                                <th>Search files and folders</th>
+                                            </tr>
+                                            </thead>
+                                            <tbody>
+                                            <table style="border-collapse: separate; border-spacing: 0 5px;">
+                                                <tr>
+                                                    <td style="padding: 2px;">
+                                                        <label>Enter search phrase:</label>
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 2px;">
+                                                        <input th:field="*{searchPhrase}" >
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <td style="padding: 2px;">
+                                                        <input th:value="Search" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/search/'}"
+                                                               type="submit" class="btn btn-primary" th:alt-title="${'When input is empty press Search to return'}">
+                                                    </td>
+                                                </tr>
+                                            </table>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                </div>
+                            </div>
+
                             <div class="row" th:if="${foldersAreBeingShared!=null}">
                                 <div class="col-md-12">
                                     <div class="table-responsive">
