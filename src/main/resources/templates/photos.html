@@ -233,15 +233,21 @@
                                             <!--/*@thymesVar id="parent" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
                                             <!--/*@thymesVar id="folders" type="java.util.Set"*/-->
                                             <!--/*@thymesVar id="folder" type="laserdiffraction01.laserdiffraction01.domain.Folder"*/-->
-                                            <tr th:each="folder : *{sharedFolders}" th:if="${foldersPhotosDTO.getSharedFolders()!=null && foldersPhotosDTO.getSharedFolders().isEmpty()==false}">
+                                            <tr th:each="folder, folderStat : *{sharedFolders}" th:if="${foldersPhotosDTO.getSharedFolders()!=null && foldersPhotosDTO.getSharedFolders().isEmpty()==false}">
                                                 <td>
                                                     <a href="#" th:href="@{'/photos/' + ${folder.getId()}}" th:text="${folder.getName()}" >
                                                         Subfolder name
                                                     </a>
 
                                                     <input type="checkbox" th:field="*{sharedFolders[__${folderStat.index}__].isSelected}">
-                                                    <input type="hidden" th:field="*{sharedFolders[__${folderStat.index}__].name}">
                                                     <input type="hidden" th:field="*{sharedFolders[__${folderStat.index}__].id}">
+
+                                                    <input th:if="${folder.getBeingEdited()==false}" type="hidden" th:field="*{sharedFolders[__${folderStat.index}__].name}" />
+                                                    <input th:if="${folder.getBeingEdited()==true}" th:field="*{sharedFolders[__${folderStat.index}__].name}" />
+
+                                                    <input type="image" width="8%" height="auto" th:src="@{'/photos/' + ${foldersPhotosDTO.getStaticPictureEditPen().getId()} + '/image'}" alt="Edit"
+                                                           th:formaction="@{'/photos/switchSharedFolderBeingEdited/' + ${currentFolder.getId()} + '/selectFolder/' + ${folder.getId()}}"/>
+
                                                 </td>
                                             </tr>
                                             </tbody>

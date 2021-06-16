@@ -28,4 +28,5 @@ public class FoldersPhotosDTO {
         this.staticPictureEditPen = staticPictureEditPen;
         this.sharedFolders=sharedFolders;
     }
+    //hi
 }

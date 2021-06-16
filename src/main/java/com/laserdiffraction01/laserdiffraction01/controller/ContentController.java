@@ -229,7 +229,7 @@ public class ContentController {
     //////////////              working with selected folders and photos
 
     //start sharing selected folders - setting the flag variable
-    @PostMapping("photos/startSharingFolders/currentFolder//{currentFolderId}")
+    @PostMapping("photos/startSharingFolders/currentFolder/{currentFolderId}")
     public String startSharingFolders (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, Model model){
         log.debug("ContentController.startSharingFolders(..)");
         getCurrentFolder(currentFolderId, model);
@@ -353,6 +353,40 @@ public class ContentController {
         }
         return "redirect:/photos/" + folderId;
     }
+
+   @PostMapping("photos/switchSharedFolderBeingEdited/{currentFolderId}/selectFolder/{selectedFolderId}")
+   public String switchSharedFolderBeingEditedStatus (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, @PathVariable("selectedFolderId") String selectedFolderId, Model model){
+
+       Folder folder = folderService.getFolderById(Long.valueOf(selectedFolderId));
+
+       if (folder!=null) {
+           log.debug("ContentController.switchSharedFolderBeingEditedStatus() folder old name = " + folder.getName());
+
+           if (folder.getBeingEdited())
+               for (int i = 0; i < foldersPhotosDTO.getSharedFolders().size(); i ++)
+                   if (foldersPhotosDTO.getSharedFolders().get(i).getId().equals(folder.getId())) {
+                       log.debug("Setting new name = " + foldersPhotosDTO.getSharedFolders().get(i).getName());
+                       folder.setName(foldersPhotosDTO.getSharedFolders().get(i).getName());
+                       break;
+                   }
+
+           log.debug("ContentController.switchFolderBeingEditedStatus() folder new name = " + folder.getName());
+
+           folder.setBeingEdited(!folder.getBeingEdited());
+
+           folderService.save (folder);
+
+           getCurrentFolder(currentFolderId, model);
+
+           log.debug("ContentController.switchSharedFolderBeingEditedStatus() worked fine");
+           return "photos";
+       }
+       else {
+           //todo add error
+           log.error("ContentController.switchSharedFolderBeingEditedStatus: folder is NOT FOUND id = " + currentFolderId);
+           return "photos";
+       }
+   }
 
     @PostMapping("photos/switchFolderBeingEdited/{currentFolderId}/selectFolder/{selectedFolderId}")
     public String switchFolderBeingEditedStatus (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, @PathVariable("selectedFolderId") String selectedFolderId, Model model){
