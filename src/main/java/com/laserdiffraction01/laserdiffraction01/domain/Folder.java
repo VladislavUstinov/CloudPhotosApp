@@ -39,7 +39,7 @@ public class Folder {
 
     //всякая папка может хранить пустой или непустой набор файлов. В данном случае фотографий
     @OneToMany(cascade=CascadeType.ALL,mappedBy="folder")
-    private Set<FilePhoto> filePhotos = new HashSet<>();
+    private List<FilePhoto> filePhotos = new ArrayList<>();
 
     @Override
     public boolean equals(Object o) {

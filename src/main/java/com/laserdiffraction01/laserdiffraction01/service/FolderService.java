@@ -26,4 +26,7 @@ public interface FolderService {
     public boolean save (Folder folder);
 
     public void search(List<Folder> resultFolders, List<FilePhoto> resultPhotos, String searchPhrase, User user) ;
+
+    public Long getLeft (Long folderId, Long photoId);
+    public Long getRight (Long folderId, Long photoId);
 }

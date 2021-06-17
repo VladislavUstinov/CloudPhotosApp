@@ -73,7 +73,7 @@ public class FolderServiceImpl implements FolderService {
 
             //delete and detach photos:
             if (folder.getFilePhotos() != null && !folder.getFilePhotos().isEmpty()) {
-                Set<FilePhoto> photos = folder.getFilePhotos();
+                List<FilePhoto> photos = folder.getFilePhotos();
 
                 for (FilePhoto photo : photos)
                     photo.setFolder(null);
@@ -220,6 +220,65 @@ public class FolderServiceImpl implements FolderService {
         }
 
         searchFoldersTree (resultFolders, resultPhotos, searchPhrase, user.getFolders());
+    }
+
+    @Override
+    public Long getLeft(Long folderId, Long photoId) {
+        Folder currentFolder = getFolderById(folderId);
+        if (currentFolder == null) {
+            log.error("FolderService.getLeft(...): getFolderById() returned null. folderId = " + folderId);
+            return null;
+        }
+
+        List<FilePhoto> photos = currentFolder.getFilePhotos();
+
+        if (photos == null || photos.isEmpty()){
+            log.error("FolderService.getLeft(...) currentFolder.getFilePhotos() returned null or was empty. folderId = " + folderId);
+            return null;
+        }
+
+        for (int i = 0; i < photos.size(); i++) {
+            if (photos.get(i).getId().equals(photoId))
+                if (i == 0)
+                    return photoId;
+                else
+                    return photos.get(i-1).getId();
+        }
+
+        log.error("FolderService.getLeft(...) currentFolder.getFilePhotos() does NOT CONTAIN filePhotoId " + photoId +
+                " ; where folderId = " + folderId + " ; folderName = " + currentFolder.getName());
+
+        return null;
+    }
+
+    @Override
+    public Long getRight(Long folderId, Long photoId) {
+        Folder currentFolder = getFolderById(folderId);
+        if (currentFolder == null) {
+            log.error("FolderService.getRight(...): getFolderById() returned null. folderId = " + folderId);
+            return null;
+        }
+
+        List<FilePhoto> photos = currentFolder.getFilePhotos();
+
+        if (photos == null || photos.isEmpty()){
+            log.error("FolderService.getRight(...) currentFolder.getFilePhotos() returned null or was empty. folderId = " + folderId);
+            return null;
+        }
+
+        for (int i = 0; i < photos.size(); i++) {
+            if (photos.get(i).getId().equals(photoId))
+                if (i == photos.size()-1)
+                    return photoId;
+                else
+                    return photos.get(i+1).getId();
+        }
+
+        log.error("FolderService.getRight(...) currentFolder.getFilePhotos() does NOT CONTAIN filePhotoId " + photoId +
+                " ; where folderId = " + folderId + " ; folderName = " + currentFolder.getName());
+
+        return null;
+
     }
 
     public void searchFoldersTree(List<Folder> resultFolders, List<FilePhoto> resultPhotos, String searchPhrase, Set<Folder> currentFolders) {

@@ -73,7 +73,7 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
     @Override
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_PEN, "C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\pen.jpg");
+        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_PEN, "C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\pen.png");
 
         Role userRole = new Role(1L, Role.USER_ROLE_STRING);
         Role adminRole = new Role(2L, Role.ADMIN_ROLE_STRING);

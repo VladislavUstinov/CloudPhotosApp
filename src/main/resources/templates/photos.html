@@ -67,48 +67,49 @@
 
                         <div class="col-md-2">
                                 <div class="table-responsive">
-                                    <table class="table table-hover ">
+                                    <table class="table table-hover">
                                         <thead class="thead-inverse">
                                             <tr>
                                                 <th>Buttons</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                        <tr>
-                                            <td>
-                                                <input type="submit" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/copySelected/'}" name="Copy" class="btn btn-primary" value="Copy"/>
+                                        <table style="border-collapse: separate; border-spacing: 0 5px;">
+                                            <tr>
+                                                <td style="padding: 2px;">
+                                                <input style="width: 95%;" type="submit" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/copySelected/'}" name="Copy" class="btn btn-primary" value="Copy" />
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>
-                                                <input type="submit" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/pasteSelected/'}" name="Paste" class="btn btn-primary" value="Paste"/>
+                                            <td style="padding: 2px;">
+                                                <input style="width: 95%;" type="submit" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/pasteSelected/'}" name="Paste" class="btn btn-primary" value="Paste"/>
                                             </td>
                                         </tr>
 
                                         <tr>
-                                            <td>
-                                                <input type="submit" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/deleteSelected/'}" name="Delete" class="btn btn-primary" value="Delete"/>
+                                            <td style="padding: 2px;">
+                                                <input style="width: 95%;" type="submit" th:formaction="@{'/photos/' + ${currentFolder.getId()} + '/deleteSelected/'}" name="Delete" class="btn btn-primary" value="Delete"/>
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>
-                                                <label class="btn btn-primary" for="imagefile" >Upload file</label>
+                                            <td style="padding: 2px;">
+                                                <label style="width: 95%;" class="btn btn-primary" for="imagefile" >Upload file</label>
                                                 <input multiple style="display: none" th:alt-title="${'Choose file'}" alt="Choose file" id="imagefile" name="imagefile" type="file" class="file">
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>
-                                                <input value="New folder" type="submit" th:formaction="@{'/photos/startCreatingNewFolder/currentFolder/' + ${currentFolder.getId()}}" name="NewFolder" class="btn btn-primary" th:alt-title="${'New folder'}" alt="New folder">
+                                            <td style="padding: 2px;">
+                                                <input style="width: 95%;" value="New folder" type="submit" th:formaction="@{'/photos/startCreatingNewFolder/currentFolder/' + ${currentFolder.getId()}}" name="NewFolder" class="btn btn-primary" th:alt-title="${'New folder'}" alt="New folder">
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>
-                                                <input value="Search" type="submit" th:formaction="@{'/photos/startSearching/currentFolder/' + ${currentFolder.getId()}}" name="Search" class="btn btn-primary" th:alt-title="${'Search'}" alt="Search">
+                                            <td style="padding: 2px;">
+                                                <input style="width: 95%;" value="Search" type="submit" th:formaction="@{'/photos/startSearching/currentFolder/' + ${currentFolder.getId()}}" name="Search" class="btn btn-primary" th:alt-title="${'Search'}" alt="Search">
                                             </td>
                                         </tr>
                                         <tr>
-                                            <td>
-                                                <input value="Share folders" type="submit" th:formaction="@{'/photos/startSharingFolders/currentFolder/' + ${currentFolder.getId()}}" name="ShareFolders" class="btn btn-primary" th:alt-title="${'Share folders'}" alt="Share folders">
+                                            <td style="padding: 2px;">
+                                                <input style="width: 95%;" value="Share folders" type="submit" th:formaction="@{'/photos/startSharingFolders/currentFolder/' + ${currentFolder.getId()}}" name="ShareFolders" class="btn btn-primary" th:alt-title="${'Share folders'}" alt="Share folders">
                                             </td>
                                         </tr>
 
@@ -305,6 +306,18 @@
                                     <img src="../../static/images/guacamole400x400WithX.jpg"
                                          th:src="@{'/photos/' + ${photos.iterator().next().getId()} + '/image'}"
                                          width="100%" height="auto" th:if="${selectedFilePhoto == null && photos != null && photos.isEmpty()==false}">
+                                </div>
+                                <div class="col-md-3">
+                                    <input style="width: 50%;" value="Full screen" type="submit"
+                                           th:formaction="@{'/photos/goFullScreen/currentFolder/' + ${currentFolder.getId()} + '/selectedPhoto/'+ ${selectedFilePhoto.getId()}}"
+                                           name="FullScreen" class="btn btn-primary" th:alt-title="${'Full screen'}" alt="Full screen"
+                                           th:if="${selectedFilePhoto != null}">
+
+                                    <input style="width: 50%;" value="Full screen" type="submit"
+                                           th:formaction="@{'/photos/goFullScreen/currentFolder/' + ${currentFolder.getId()}}"
+                                           name="FullScreen" class="btn btn-primary" th:alt-title="${'Full screen'}" alt="Full screen"
+                                           th:if="${selectedFilePhoto == null}">
+
                                 </div>
 
 
