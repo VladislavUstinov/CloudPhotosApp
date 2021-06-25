@@ -117,4 +117,14 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+/*    public void initRootByDefault() {
+        if (getFolders()==null)
+            setFolders(new HashSet<>());
+
+        if (getRoot()==null){
+            setRoot(new Folder());
+            getFolders().add(getRoot());
+        }
+    }*/
 }

@@ -31,9 +31,16 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
                 //Доступ только для зарегистрированных пользователей
                     .antMatchers("/admin/showAll").hasRole(Role.ADMIN_ROLE_STRING)
-                    .antMatchers("/news", "/photos").hasAnyRole(Role.ADMIN_ROLE_STRING, Role.USER_ROLE_STRING)
+                    .antMatchers("/news", "/photos", "/account").hasAnyRole(Role.ADMIN_ROLE_STRING, Role.USER_ROLE_STRING)
+                //доступ для всех
                     .antMatchers("/", "/index").permitAll()
-                    .anyRequest().authenticated()
+                //доступ для всех к bootstrap
+                    .antMatchers("/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css",
+                        "/webjars/jquery/1.11.1/jquery.min.js",
+                        "/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js").permitAll()
+                //доступ к защищенной базе данных todo:прописать h2-console мои логин и пароль
+                    //.antMatchers("/h2-console/**", "/h2-console").permitAll()
+                    .anyRequest().authenticated()// - it disables bootstrap for non-authorozied users!
                 .and()
                 .formLogin()
                 .loginPage("/login")

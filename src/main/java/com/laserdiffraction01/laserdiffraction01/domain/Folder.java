@@ -18,7 +18,7 @@ public class Folder {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id = UUID.randomUUID().getMostSignificantBits();
+    private Long id;
 
     private String name = "";
 

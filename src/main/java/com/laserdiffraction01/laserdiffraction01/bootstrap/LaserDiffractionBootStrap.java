@@ -109,6 +109,12 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
         log.debug ("filePhotoRepository.count() = " + filePhotoRepository.count());
 
         setFoldersAndPhotos (users, sampleImageFileContent1, sampleImageFileContent2);
+
+        log.debug("Print all filePhoto id in repo after bootstrap has worked:");
+        Iterator<FilePhoto> photoIter = filePhotoRepository.findAll().iterator();
+
+        while (photoIter.hasNext())
+            log.debug(photoIter.next().getId().toString());
     }
 
     private void setFoldersAndPhotos (List<User> users, byte[] sampleImageFileContent1, byte[] sampleImageFileContent2) {

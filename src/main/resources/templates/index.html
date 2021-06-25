@@ -1,31 +1,93 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>My Photo Web Storage</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"
+          th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}">
+
+    <script src="/webjars/jquery/1.11.1/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+            integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+            crossorigin="anonymous" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+
+    <style>
+        .scrollableBody{
+            height: 700px;
+            overflow-y: auto
+        }
+
+        mytable {
+            border-collapse: separate;
+            border-spacing: 0 15px;
+        }
+        mytd {
+
+            padding: 5px;
+        }
+
+    </style>
 </head>
+
 <body>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-9 col-md-offset-1">
+            <div class="panel-group">
 
-    <ul>
-        <li>
-            <a href="/admin/showAll"> For administrators</a>
-        </li>
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h1 class="panel-title"> Store your photos with us! </h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <li>
-            <a href="/login"> Login existing user </a>
-        </li>
+                <div class="panel-body">
 
-        <li>
-            <a href="user/registration"> Register new user </a>
-        </li>
+                    <div class="row">
 
-        <li>
-            <a href="/news"> news - for registered users </a>
-        </li>
+                        <div class="col-md-3">
+                            <tbody>
+                            <table style="border-collapse: separate; border-spacing: 0 5px;">
+                                <tr>
+                                    <td style="padding: 2px;">
+                                        <a th:href="@{'user/registration'}">
+                                            <label value="Register new user" style="width: 100%;"
+                                                   name="Register" class="btn btn-primary" th:alt-title="${'Register new user'}" alt="Register new user">
+                                                Register new user </label>
+                                        </a>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 2px;">
+                                        <a th:href="@{'login'}">
+                                            <label value="Login existing user" style="width: 100%;"
+                                                   name="loginButton" class="btn btn-primary" th:alt-title="${'Login existing user'}" alt="Login existing user">
+                                                Login existing user </label>
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+                            </tbody>
+                        </div>
 
-        <li>
-            <a href="/index"> main page </a>
-        </li>
-    </ul>
+
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
 </body>
 </html>

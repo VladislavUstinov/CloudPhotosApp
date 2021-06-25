@@ -1,8 +1,10 @@
 package com.laserdiffraction01.laserdiffraction01.service;
 
 import com.laserdiffraction01.laserdiffraction01.domain.User;
+import com.laserdiffraction01.laserdiffraction01.domain.UserChangePasswordDTO;
 import javassist.NotFoundException;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import javax.transaction.Transactional;
@@ -16,8 +18,12 @@ public interface UserService extends UserDetailsService {
     List<User> findAll ();
 
     @Transactional
-    boolean saveUser(User userForm, String roleName);
+    boolean updateUser(User userForm, String roleName);
 
     @Transactional
-    boolean saveUser(User userForm, ArrayList<String> roleNames);
+    boolean updateUser(User userForm, ArrayList<String> roleNames);
+
+    public void deleteUserByUsername (String username) throws UsernameNotFoundException;
+
+    public boolean checkPasswordsAndSave(UserChangePasswordDTO userForm);
 }

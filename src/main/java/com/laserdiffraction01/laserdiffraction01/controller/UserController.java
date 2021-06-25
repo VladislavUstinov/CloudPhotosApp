@@ -2,24 +2,21 @@ package com.laserdiffraction01.laserdiffraction01.controller;
 
 import com.laserdiffraction01.laserdiffraction01.domain.Role;
 import com.laserdiffraction01.laserdiffraction01.domain.User;
+import com.laserdiffraction01.laserdiffraction01.domain.UserChangePasswordDTO;
 import com.laserdiffraction01.laserdiffraction01.repository.RoleRepository;
 import com.laserdiffraction01.laserdiffraction01.service.UserService;
-import org.springframework.security.core.userdetails.UserDetails;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 
-import javax.validation.Valid;
 
-import java.util.List;
-import java.util.Set;
-
-
+@Slf4j
 @Controller
 public class UserController {
     private final UserService userService;
@@ -28,6 +25,56 @@ public class UserController {
     public UserController(UserService userService, RoleRepository roleRepository) {
         this.userService = userService;
         this.roleRepository = roleRepository;
+    }
+
+    //////////////////// account details
+
+    @GetMapping(value={"/user/account"})
+    String getAccountDetails(Model model){
+
+        model.addAttribute("userForm", new UserChangePasswordDTO());
+        return "user/account";
+    }
+    //todo - changePassword and delete user (may be with logout?).
+    // Then errors handling, split ContentController, write tests, change name of project, add description.
+    // That's it
+    @PostMapping("/user/delete")
+    public String deleteUser (Model model) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+
+        try {
+            userService.deleteUserByUsername(currentPrincipalName);
+        }catch (UsernameNotFoundException exc) {
+            model.addAttribute("userNameNotFound", currentPrincipalName);
+            log.error("UserController.deleteUser - username " + currentPrincipalName + "NOT FOUND - TOTAL ERROR, can not be!");
+            return "user/account";
+        }
+
+        return "index";
+    }
+
+    @PostMapping("/user/changePassword")
+    public String changeUserPassword (@ModelAttribute("userForm") UserChangePasswordDTO userForm, Model model) {
+        if (!userForm.getNewPassword().equals(userForm.getNewPasswordConfirmed())){
+            model.addAttribute("userForm", new UserChangePasswordDTO());
+            model.addAttribute("passwordError", "New password and its confirmation are different");
+            return "user/account";
+        }
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentPrincipalName = authentication.getName();
+
+        userForm.setUsername(currentPrincipalName);
+
+        if (!userService.checkPasswordsAndSave(userForm)){model.addAttribute("userForm", new UserChangePasswordDTO());
+            model.addAttribute("passwordError", "Wrong old password was entered");
+            model.addAttribute("userForm", new UserChangePasswordDTO());
+            return "user/account";
+        }
+
+        model.addAttribute("userForm", new UserChangePasswordDTO());
+        return "user/account";
     }
 
     ////////////////////   register new user   //////////////////
@@ -49,7 +96,7 @@ public class UserController {
             model.addAttribute("passwordError", "Пароли не совпадают");
             return "user/registration";
         }
-        if (!userService.saveUser(userForm, Role.USER_ROLE_STRING)){
+        if (!userService.updateUser(userForm, Role.USER_ROLE_STRING)){
             model.addAttribute("usernameError", "Пользователь с таким именем уже существует");
             return "user/registration";
         }

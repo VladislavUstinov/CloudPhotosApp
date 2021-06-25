@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
+      integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"
+      th:href="@{/webjars/bootstrap/3.3.7-1/css/bootstrap.min.css}">
+
+<script src="/webjars/jquery/1.11.1/jquery.min.js"></script>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous" th:src="@{/webjars/bootstrap/3.3.7-1/js/bootstrap.min.js}"></script>
+
+<head>
+    <title>Authorization</title>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-9 col-md-offset-1">
+            <div class="panel-group">
+
+                <div class="panel panel-primary">
+                    <div class="panel-heading">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <h1 class="panel-title"> Account: [[${#httpServletRequest.remoteUser}]] </h1>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel-body">
+                    <div class="row" style="padding: 5px;">
+                        <div class="col-md-2">
+                            <form th:action="@{'/logout'}" method="post">
+                                <input style="width: 95%;" type="submit" value="Sign Out" class="btn btn-primary"/>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row" style="padding: 5px;">
+                        <div class="col-md-2">
+                            <div th:if="${userNameNotFound!=null}">
+                                <label th:value="${'Your username ' + ${userNameNotFound} +' was not found in database - TOTAL ERROR'}">
+                                    Username not found!
+                                </label>
+                            </div>
+
+                            <form th:action="@{'/user/delete'}" method="post">
+                                <input style="width: 95%;" type="submit" value="Delete account" class="btn btn-primary"/>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!--/*type="com.laserdiffraction01.laserdiffraction01.domain.UserChangePasswordDTO"*/-->
+                    <form th:object="${userForm}" th:action="@{'/user/changePassword'}" method="post">
+                        <div class="row" style="padding: 5px;">
+                            <div class="col-md-3 form-group">
+                                <div th:if="${passwordError!=null}">
+                                    <label th:value="${passwordError}" th:text="${passwordError}"></label>
+                                </div>
+
+                                <input type="hidden" th:field="*{username}" />
+
+                                <label>If you want to change password, enter old password:</label>
+                                <input style="width: 95%;" type="password" th:field="*{oldPassword}"/>
+                            </div>
+                        </div>
+                        <div class="row" style="padding: 5px;">
+                            <div class="col-md-3 form-group">
+                                <label>Enter new password:</label>
+                                <input style="width: 95%;" type="password" th:field="*{newPassword}" />
+                            </div>
+                        </div>
+                        <div class="row" style="padding: 5px;">
+                            <div class="col-md-3 form-group">
+                                <label>Enter new password confirmed:</label>
+                                <input style="width: 95%;" type="password" th:field="*{newPasswordConfirmed}"/>
+                            </div>
+                        </div>
+                        <div class="row" style="padding: 5px;">
+                            <div class="col-md-2 form-group">
+                                <button style="width: 95%;" type="submit" class="btn btn-primary">Submit</button>
+                            </div>
+                        </div>
+                    </form>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

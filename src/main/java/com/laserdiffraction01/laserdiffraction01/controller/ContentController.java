@@ -6,14 +6,15 @@ import com.laserdiffraction01.laserdiffraction01.domain.FilePhoto;
 import com.laserdiffraction01.laserdiffraction01.domain.Folder;
 import com.laserdiffraction01.laserdiffraction01.domain.User;
 import com.laserdiffraction01.laserdiffraction01.repository.FilePhotoRepository;
+import com.laserdiffraction01.laserdiffraction01.repository.FolderRepository;
 import com.laserdiffraction01.laserdiffraction01.repository.RoleRepository;
+import com.laserdiffraction01.laserdiffraction01.repository.UserRepository;
 import com.laserdiffraction01.laserdiffraction01.service.CopyPasteService;
 import com.laserdiffraction01.laserdiffraction01.service.FolderService;
 import com.laserdiffraction01.laserdiffraction01.service.ImageService;
 import com.laserdiffraction01.laserdiffraction01.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -36,31 +37,48 @@ public class ContentController {
     private final FolderService folderService;
     private final ImageService imageService;
     private final FilePhotoRepository filePhotoRepository;
+    private final UserRepository userRepository;
+    private final FolderRepository folderRepository;
     private final CopyPasteService copyPasteService;
 
     //AMOUNT_OF_PHOTOS_IN_RAW should be modified together with <td class="col-md-3"> in photos.html Here, 3 = 12/AMOUNT_OF_PHOTOS_IN_RAW
     static public int AMOUNT_OF_PHOTOS_IN_RAW = 4;
 
-    public ContentController(UserService userService, RoleRepository roleRepository, FolderService folderService, ImageService imageService, FilePhotoRepository filePhotoRepository, CopyPasteService copyPasteService) {
+    public ContentController(UserService userService, RoleRepository roleRepository, FolderService folderService, ImageService imageService, FilePhotoRepository filePhotoRepository, UserRepository userRepository, FolderRepository folderRepository, CopyPasteService copyPasteService) {
         this.userService = userService;
         this.roleRepository = roleRepository;
         this.folderService = folderService;
         this.imageService = imageService;
         this.filePhotoRepository = filePhotoRepository;
+        this.userRepository = userRepository;
+        this.folderRepository = folderRepository;
         this.copyPasteService = copyPasteService;
     }
 
     @GetMapping(value={"/index", "/"})
     String getIndex(Model model){
 
+        log.debug("amount of users in userRepository: " + userRepository.count());
+        log.debug("amount of photos in filePhotoRepository: " + filePhotoRepository.count());
+        log.debug("amount of folders in folderRepository: " + folderRepository.count());
+
         return "index";
     }
+
+    /*
+    @RequestMapping({"/error"})
+    public String index() {
+        return "forward:/index.html";
+    }*/
 
     ///////////////////////  photos and folders      //////////////////
 
     @GetMapping("/photos/{folderId}")
     String getCurrentFolder(@PathVariable String folderId, Model model){//}, @ModelAttribute("currentFolder") Folder currentFolder){
       //  log.debug("ContentController.getCurrentFolder => old current folder = " + currentFolder.getName());
+
+        //if (folderId != null)
+        //    throw new NumberFormatException ("hi");
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentPrincipalName = authentication.getName();

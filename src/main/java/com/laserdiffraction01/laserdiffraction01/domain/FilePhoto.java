@@ -85,7 +85,6 @@ public class FilePhoto {
     }
 
     public FilePhoto(String name, Byte[] image, Folder folder) {
-        this.id = id;
         this.name = name;
         this.image = image;
         this.folder = folder;
