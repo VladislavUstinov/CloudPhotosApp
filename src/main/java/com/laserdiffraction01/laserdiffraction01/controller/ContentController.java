@@ -221,76 +221,6 @@ public class ContentController {
         return "photos";
     }
 
-    ////////////// working with main buttons in photos/
-    ////////////// work with full screen
-
-    @PostMapping("photos/goFullScreen/currentFolder/{currentFolderId}")
-    public String goFullScreenNoSelectedPhoto (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId,
-                                Model model){
-
-        if (foldersPhotosDTO.getPhotos()!=null && !foldersPhotosDTO.getPhotos().isEmpty()) {
-            model.addAttribute("selectedPhotoId", foldersPhotosDTO.getPhotos().iterator().next().getId());
-            model.addAttribute("currentFolderId", currentFolderId);
-            model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
-        } else{
-            model.addAttribute("NoPhotosAvailable", true);
-        }
-
-        return "fullscreen";
-    }
-
-    @PostMapping("photos/goFullScreen/currentFolder/{currentFolderId}/selectedPhoto/{selectedPhotoId}")
-    public String goFullScreen (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId,
-                                @PathVariable("selectedPhotoId") String selectedPhotoId, Model model){
-
-        model.addAttribute("selectedPhotoId", selectedPhotoId);
-        model.addAttribute("currentFolderId", currentFolderId);
-        model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
-
-        return "fullscreen";
-    }
-
-    @PostMapping("photos/goFullScreen/currentFolder/{currentFolderId}/selectedPhoto/{selectedPhotoId}/left")
-    public String goFullScreenLeft (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId,
-                                @PathVariable("selectedPhotoId") String selectedPhotoId, Model model){
-
-        Long leftId = folderService.getLeft (Long.valueOf(currentFolderId), Long.valueOf(selectedPhotoId));
-
-        if (leftId == null) {
-            //todo resolve error attribute in fullscreen.html
-            model.addAttribute("NoNextPhotoAvailable", true);
-            log.error("ContentController.goFullScreenLeft(): folderService.getLeft returned NULL when " +
-                    "currentFolderId = " + currentFolderId + " ; selectedPhotoId = " + selectedPhotoId);
-            return "fullscreen";
-        }
-
-        model.addAttribute("selectedPhotoId", leftId);
-        model.addAttribute("currentFolderId", currentFolderId);
-        model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
-
-        return "fullscreen";
-    }
-
-    @PostMapping("photos/goFullScreen/currentFolder/{currentFolderId}/selectedPhoto/{selectedPhotoId}/right")
-    public String goFullScreenRight (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId,
-                                    @PathVariable("selectedPhotoId") String selectedPhotoId, Model model){
-
-        Long rightId = folderService.getRight (Long.valueOf(currentFolderId), Long.valueOf(selectedPhotoId));
-
-        if (rightId == null) {
-            //todo resolve error attribute in fullscreen.html
-            model.addAttribute("NoNextPhotoAvailable", true);
-            log.error("ContentController.goFullScreenRight(): folderService.getRight returned NULL when " +
-                    "currentFolderId = " + currentFolderId + " ; selectedPhotoId = " + selectedPhotoId);
-            return "fullscreen";
-        }
-
-        model.addAttribute("selectedPhotoId", rightId);
-        model.addAttribute("currentFolderId", currentFolderId);
-        model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
-
-        return "fullscreen";
-    }
 
 
     ////////////// search button
@@ -495,19 +425,7 @@ public class ContentController {
         return "redirect:/photos/"+folderId;
     }
 
-    ////////////// working with images
-
-    @PostMapping("photos/{folderId}/imageuploadform/")
-    public String handleImagePost(@PathVariable String folderId, @RequestParam("imagefile") List<MultipartFile> files){
-
-        for (MultipartFile file : files) {
-            log.debug("ContentController.handleImagePost. Image name = " + file.getOriginalFilename());
-            if (file.getOriginalFilename().isEmpty() == false)
-                imageService.saveImageFile(Long.valueOf(folderId), file);
-
-        }
-        return "redirect:/photos/" + folderId;
-    }
+    //////////////////////////////////////////// working with editing folders and photos in the table
 
    @PostMapping("photos/switchSharedFolderBeingEdited/{currentFolderId}/selectFolder/{selectedFolderId}")
    public String switchSharedFolderBeingEditedStatus (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, @PathVariable("selectedFolderId") String selectedFolderId, Model model){
@@ -625,30 +543,7 @@ public class ContentController {
         }
     }
 
-    @GetMapping("photos/{photoId}/image")
-    public void renderImageFromDB(@PathVariable String photoId, HttpServletResponse response) throws IOException {
 
-        Optional<FilePhoto> filePhotoOptional = filePhotoRepository.findById(Long.valueOf(photoId));
-
-        if (filePhotoOptional.isPresent()) {
-            FilePhoto filePhoto = filePhotoOptional.get();
-
-            if (filePhoto.getImage() == null || filePhoto.getImage().length == 0)
-                return;
-
-            byte[] byteArray = new byte[filePhoto.getImage().length];
-            int i = 0;
-
-            for (Byte wrappedByte : filePhoto.getImage()){
-                byteArray[i++] = wrappedByte; //auto unboxing
-            }
-
-            response.setContentType("image/jpeg");
-            InputStream is = new ByteArrayInputStream(byteArray);
-            IOUtils.copy(is, response.getOutputStream());
-        }
-
-    }
 }
 
 /*

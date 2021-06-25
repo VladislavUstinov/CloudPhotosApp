@@ -12,15 +12,6 @@ public class LaserDiffraction01Application {
     public static void main(String[] args) {
         ApplicationContext ctx =  SpringApplication.run(LaserDiffraction01Application.class, args);
 
-/*
-        //ApplicationContext ctx = SpringApplication.run(SfgDiApplication.class, args);
-
-        PasswordEncoder passwordEncoder = ctx.getBean("passwordEncoder", PasswordEncoder.class);
-
-        UserService userService = ctx.getBean("userService", UserService.class);
-        userService.setPasswordEncoder (passwordEncoder);
-*/
-
     }
 
 }

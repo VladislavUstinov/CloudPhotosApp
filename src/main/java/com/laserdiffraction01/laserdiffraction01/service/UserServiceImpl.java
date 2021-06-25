@@ -163,7 +163,7 @@ public class UserServiceImpl implements UserService{
                     folder.setParent(null);
                 }
 
-                while (folder.getSubFolders() == null || !folder.getSubFolders().iterator().hasNext()) {
+                while (folder.getSubFolders() != null && folder.getSubFolders().iterator().hasNext()) {
                     Folder subFolder = folder.getSubFolders().iterator().next();
                     deleteWithSubFoldersUntilTheyHaveSingleUser(user, subFolder);
                 }
@@ -172,7 +172,7 @@ public class UserServiceImpl implements UserService{
                 //do I need to delete folder.getFilePhotos() - no, it's ok
                 folderRepository.delete(folder);
             } else {
-                if (folder.getParent() != null) {
+                if (folder.getParent() != null && folder.getParent().getOwners().size() == 0) {
                     folder.getParent().getSubFolders().remove(folder);
                     folder.setParent(null);
                 }

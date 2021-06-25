@@ -21,12 +21,13 @@
     <div class="row">
         <div class="col-md-6 col-md-offset-3">
             <h1>404 Page not found error</h1>
-            <a th:href="@{'index'}">
+            <a th:href="@{'/index'}">
                 <label value="Backhome"
                        name="Register" class="btn btn-primary" th:alt-title="${'Go back home'}" alt="Go back home">
                     Go back home </label>
             </a>
-            <p th:text="${exception.getMessage()}"></p>
+            <p th:text="${exception.getType()}" th:if="${exception != null && exception.getType() != null}"></p>
+            <p th:text="${exception.getMessage()}" th:if="${exception != null && exception.getMessage() != null}"></p>
         </div>
     </div>
 </div>
