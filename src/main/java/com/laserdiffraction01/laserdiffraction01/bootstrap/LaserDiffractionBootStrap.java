@@ -73,6 +73,7 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
     @Override
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
+        /*
         loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_PEN, "C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\pen.png");
 
         Role userRole = new Role(1L, Role.USER_ROLE_STRING);
@@ -114,7 +115,14 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
         Iterator<FilePhoto> photoIter = filePhotoRepository.findAll().iterator();
 
         while (photoIter.hasNext())
-            log.debug(photoIter.next().getId().toString());
+            log.debug(photoIter.next().getId().toString());*/
+
+        log.debug("LaserDiffractionBootStrap.onApplicationEvent()");
+
+        log.debug("userRepository.count() = " + userRepository.count());
+        log.debug("Have successfully loaded Bootstrap Data - Users");
+
+        log.debug ("filePhotoRepository.count() = " + filePhotoRepository.count());
     }
 
     private void setFoldersAndPhotos (List<User> users, byte[] sampleImageFileContent1, byte[] sampleImageFileContent2) {

@@ -21,7 +21,7 @@ public class ControllerExceptionHandler {
 
         ModelAndView modelAndView = new ModelAndView();
 
-        modelAndView.setViewName("errors/filetoolarge");
+        modelAndView.setViewName("custom_errors/filetoolarge");
         modelAndView.addObject("exception", exception);
 
         return modelAndView;
@@ -36,7 +36,7 @@ public class ControllerExceptionHandler {
 
         ModelAndView modelAndView = new ModelAndView();
 
-        modelAndView.setViewName("errors/404error");
+        modelAndView.setViewName("custom_errors/404error");
         modelAndView.addObject("exception", exception);
 
         return modelAndView;
@@ -51,7 +51,7 @@ public class ControllerExceptionHandler {
 
         ModelAndView modelAndView = new ModelAndView();
 
-        modelAndView.setViewName("errors/400error");
+        modelAndView.setViewName("custom_errors/400error");
         modelAndView.addObject("exception", exception);
 
         return modelAndView;

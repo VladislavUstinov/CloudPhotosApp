@@ -16,6 +16,7 @@ import com.laserdiffraction01.laserdiffraction01.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Controller;
@@ -57,7 +58,7 @@ public class ContentController {
 
     @GetMapping(value={"/index", "/"})
     String getIndex(Model model){
-
+        log.debug("ContentController.getIndex():");
         log.debug("amount of users in userRepository: " + userRepository.count());
         log.debug("amount of photos in filePhotoRepository: " + filePhotoRepository.count());
         log.debug("amount of folders in folderRepository: " + folderRepository.count());
@@ -74,14 +75,13 @@ public class ContentController {
     ///////////////////////  photos and folders      //////////////////
 
     @GetMapping("/photos/{folderId}")
-    String getCurrentFolder(@PathVariable String folderId, Model model){//}, @ModelAttribute("currentFolder") Folder currentFolder){
-      //  log.debug("ContentController.getCurrentFolder => old current folder = " + currentFolder.getName());
+    String getCurrentFolder(@AuthenticationPrincipal User activeUser, @PathVariable String folderId, Model model){//}, @ModelAttribute("currentFolder") Folder currentFolder){
+        //Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        //String currentPrincipalName = authentication.getName();
 
-        //if (folderId != null)
-        //    throw new NumberFormatException ("hi");
+        log.error("FOLDER ID = " + folderId);
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
+        String currentPrincipalName = activeUser.getUsername();
 
         Folder folder = folderService.getFolderById(Long.decode(folderId));
 
@@ -104,7 +104,7 @@ public class ContentController {
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
 
         FoldersPhotosDTO foldersPhotosDTO = new FoldersPhotosDTO(new ArrayList<>(folder.getFilePhotos()),
-                                                                 new ArrayList<>(folder.getSubFolders()), getSharedWithMeFoldersToShow (), staticPictureEditPen);
+                                                                 new ArrayList<>(folder.getSubFolders()), getSharedWithMeFoldersToShow (currentPrincipalName), staticPictureEditPen);
 
 
         if (folder.getParent() != null && folder.getParent().getOwners().contains(user))
@@ -129,7 +129,7 @@ public class ContentController {
         return "photos";
     }
 
-    public void addPhotosTableToModel (Model model,List<FilePhoto> photos) {
+    private void addPhotosTableToModel (Model model,List<FilePhoto> photos) {
       //  Set<FilePhoto> photos = folder.getFilePhotos();
 
         int n = AMOUNT_OF_PHOTOS_IN_RAW;
@@ -152,11 +152,11 @@ public class ContentController {
         model.addAttribute("photosRawSize", AMOUNT_OF_PHOTOS_IN_RAW);
     }
 
-    public List<Folder> getSharedWithMeFoldersToShow (){
+    private List<Folder> getSharedWithMeFoldersToShow (String currentPrincipalName){
         List<Folder> sharedFolders = new ArrayList<>();
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
+      //  Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+       // String currentPrincipalName = authentication.getName();
 
         User user = (User) userService.loadUserByUsername(currentPrincipalName);
 
@@ -171,7 +171,7 @@ public class ContentController {
             while (parent.getParent() != null && parent.getParent().getOwners().contains(user))
                 parent = parent.getParent();
 
-            if (user.getRoot().equals(parent) == false &&
+            if (user.getRoot() != null && user.getRoot().equals(parent) == false &&
                     sharedFolders.contains(parent) == false)
                 sharedFolders.add(parent);
         }
@@ -186,10 +186,12 @@ public class ContentController {
     }
 
     @GetMapping("/photos")
-    String getPhotosAndUsersRoot(Model model){
+    String getPhotosAndUsersRoot(@AuthenticationPrincipal User activeUser, Model model){
 
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentPrincipalName = authentication.getName();
+       // Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+     //   String currentPrincipalName = authentication.getName();
+
+        String currentPrincipalName = activeUser.getUsername();
 
         Folder root = folderService.getRootFolderByUsername (currentPrincipalName);
 
@@ -209,7 +211,7 @@ public class ContentController {
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
 
         FoldersPhotosDTO foldersPhotosDTO = new FoldersPhotosDTO(new ArrayList<>(root.getFilePhotos()),
-                                                            new ArrayList<>(root.getSubFolders()), getSharedWithMeFoldersToShow (), staticPictureEditPen);
+                                                            new ArrayList<>(root.getSubFolders()), getSharedWithMeFoldersToShow (currentPrincipalName), staticPictureEditPen);
 
         model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
         model.addAttribute("folders", root.getSubFolders());
@@ -225,10 +227,10 @@ public class ContentController {
 
     ////////////// search button
     @PostMapping("photos/startSearching/currentFolder/{currentFolderId}")
-    public String startSearching (@PathVariable("currentFolderId") String currentFolderId, Model model){
+    public String startSearching (@AuthenticationPrincipal User activeUser, @PathVariable("currentFolderId") String currentFolderId, Model model){
 
         log.debug("ContentController.startSearching(..)");
-        getCurrentFolder(currentFolderId, model);
+        getCurrentFolder(activeUser, currentFolderId, model);
 
         model.addAttribute("SearchingIsBeingDoneNow", true);
 
@@ -277,7 +279,7 @@ public class ContentController {
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
 
         FoldersPhotosDTO newFoldersPhotosDTO = new FoldersPhotosDTO(photosSearchResult,
-                foldersSearchResult, getSharedWithMeFoldersToShow (), staticPictureEditPen);
+                foldersSearchResult, getSharedWithMeFoldersToShow (currentPrincipalName), staticPictureEditPen);
 
         model.addAttribute("foldersPhotosDTO", newFoldersPhotosDTO);
 
@@ -292,10 +294,10 @@ public class ContentController {
 
     ////////////// create new folder
     @PostMapping("photos/startCreatingNewFolder/currentFolder/{currentFolderId}")
-    public String startCreatingNewFolder (@PathVariable("currentFolderId") String currentFolderId, Model model){
+    public String startCreatingNewFolder (@AuthenticationPrincipal User activeUser, @PathVariable("currentFolderId") String currentFolderId, Model model){
 
         log.debug("ContentController.startCreatingNewFolder(..)");
-        getCurrentFolder(currentFolderId, model);
+        getCurrentFolder(activeUser, currentFolderId, model);
 
         model.addAttribute("newFolderIsBeingCreated", true);
 
@@ -315,9 +317,9 @@ public class ContentController {
 
     //start sharing selected folders - setting the flag variable
     @PostMapping("photos/startSharingFolders/currentFolder/{currentFolderId}")
-    public String startSharingFolders (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, Model model){
+    public String startSharingFolders (@AuthenticationPrincipal User activeUser, @ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, Model model){
         log.debug("ContentController.startSharingFolders(..)");
-        getCurrentFolder(currentFolderId, model);
+        getCurrentFolder(activeUser, currentFolderId, model);
 
         model.addAttribute("foldersAreBeingShared", true);
 
@@ -428,7 +430,7 @@ public class ContentController {
     //////////////////////////////////////////// working with editing folders and photos in the table
 
    @PostMapping("photos/switchSharedFolderBeingEdited/{currentFolderId}/selectFolder/{selectedFolderId}")
-   public String switchSharedFolderBeingEditedStatus (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, @PathVariable("selectedFolderId") String selectedFolderId, Model model){
+   public String switchSharedFolderBeingEditedStatus (@AuthenticationPrincipal User activeUser, @ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, @PathVariable("selectedFolderId") String selectedFolderId, Model model){
 
        Folder folder = folderService.getFolderById(Long.valueOf(selectedFolderId));
 
@@ -449,7 +451,7 @@ public class ContentController {
 
            folderService.save (folder);
 
-           getCurrentFolder(currentFolderId, model);
+           getCurrentFolder(activeUser, currentFolderId, model);
 
            log.debug("ContentController.switchSharedFolderBeingEditedStatus() worked fine");
            return "photos";
@@ -462,7 +464,7 @@ public class ContentController {
    }
 
     @PostMapping("photos/switchFolderBeingEdited/{currentFolderId}/selectFolder/{selectedFolderId}")
-    public String switchFolderBeingEditedStatus (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, @PathVariable("selectedFolderId") String selectedFolderId, Model model){
+    public String switchFolderBeingEditedStatus (@AuthenticationPrincipal User activeUser, @ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable("currentFolderId") String currentFolderId, @PathVariable("selectedFolderId") String selectedFolderId, Model model){
 
         Folder folder = folderService.getFolderById(Long.valueOf(selectedFolderId));
 
@@ -483,7 +485,7 @@ public class ContentController {
 
             folderService.save (folder);
 
-            getCurrentFolder(currentFolderId, model);
+            getCurrentFolder(activeUser, currentFolderId, model);
 
             log.debug("ContentController.switchFolderBeingEditedStatus() worked fine");
             return "photos";
@@ -496,7 +498,7 @@ public class ContentController {
     }
 
     @PostMapping("photos/switchPhotoBeingEdited/{currentFolderId}/selectphoto/{selectedPhotoId}")
-    public String switchPhotoBeingEditedStatus (@ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable String currentFolderId, @PathVariable String selectedPhotoId, Model model){
+    public String switchPhotoBeingEditedStatus (@AuthenticationPrincipal User activeUser, @ModelAttribute("foldersPhotosDTO") FoldersPhotosDTO foldersPhotosDTO, @PathVariable String currentFolderId, @PathVariable String selectedPhotoId, Model model){
         Optional<FilePhoto> filePhotoOptional = filePhotoRepository.findById(Long.valueOf(selectedPhotoId));
 
         if (filePhotoOptional.isPresent()) {
@@ -511,7 +513,7 @@ public class ContentController {
 
             filePhotoRepository.save(filePhoto);
 
-            getCurrentFolder(currentFolderId, model);
+            getCurrentFolder(activeUser, currentFolderId, model);
 
             log.debug("ContentController.switchPhotoBeingEditedStatus() worked fine");
             return "photos";
@@ -524,14 +526,14 @@ public class ContentController {
     }
 
     @GetMapping("photos/currentFolder/{currentFolderId}/selectphoto/{selectedPhotoId}")
-    public String selectPhoto (@PathVariable String currentFolderId, @PathVariable String selectedPhotoId, Model model) {
+    public String selectPhoto (@AuthenticationPrincipal User activeUser, @PathVariable String currentFolderId, @PathVariable String selectedPhotoId, Model model) {
         Optional<FilePhoto> filePhotoOptional = filePhotoRepository.findById(Long.valueOf(selectedPhotoId));
 
         if (filePhotoOptional.isPresent()) {
             FilePhoto filePhoto = filePhotoOptional.get();
             model.addAttribute("selectedFilePhoto", filePhoto);
 
-            getCurrentFolder(currentFolderId, model);
+            getCurrentFolder(activeUser, currentFolderId, model);
 
             log.debug("ContentController.selectPhoto(), photoName = " + filePhoto.getName());
             return "photos";
