@@ -1,7 +1,7 @@
 package com.cloudphotosapp.cloudphotosapp.controller;
 
 import com.cloudphotosapp.cloudphotosapp.DTO.FoldersPhotosDTO;
-import com.cloudphotosapp.cloudphotosapp.bootstrap.LaserDiffractionBootStrap;
+import com.cloudphotosapp.cloudphotosapp.bootstrap.CloudPhotosBootStrap;
 import com.cloudphotosapp.cloudphotosapp.domain.FilePhoto;
 import com.cloudphotosapp.cloudphotosapp.domain.Folder;
 import com.cloudphotosapp.cloudphotosapp.domain.User;
@@ -92,7 +92,7 @@ public class ContentController {
             return "redirect:/photos/";//todo add error
         }
 
-        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(CloudPhotosBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
 
         if (staticPictureEditPen == null)
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
@@ -193,13 +193,13 @@ public class ContentController {
             return "photos";//todo add error
 
 
-        FilePhoto photoPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+        FilePhoto photoPen = filePhotoRepository.findByName(CloudPhotosBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
         if (photoPen == null)
             log.error("DID NOT LOAD photoPen in ContentController.get..Root");
 
         log.debug("photoPen name = " + photoPen.getName());
 
-        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(CloudPhotosBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
 
         if (staticPictureEditPen == null)
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
@@ -267,7 +267,7 @@ public class ContentController {
             return "redirect:/photos/";//todo add error
         }
 
-        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(CloudPhotosBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
 
         if (staticPictureEditPen == null)
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
@@ -317,7 +317,7 @@ public class ContentController {
 
         model.addAttribute("foldersAreBeingShared", true);
 
-        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(LaserDiffractionBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
+        FilePhoto staticPictureEditPen = filePhotoRepository.findByName(CloudPhotosBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_PEN);
 
         if (staticPictureEditPen == null)
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");

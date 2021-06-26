@@ -24,7 +24,7 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class LaserDiffractionBootStrap implements ApplicationListener<ContextRefreshedEvent> {
+public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshedEvent> {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
@@ -45,7 +45,7 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
         this.passwordEncoder = passwordEncoder;
     }
 
-    public LaserDiffractionBootStrap(UserRepository userRepository, RoleRepository roleRepository, FolderRepository folderRepository, FilePhotoRepository filePhotoRepository){//}, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public CloudPhotosBootStrap(UserRepository userRepository, RoleRepository roleRepository, FolderRepository folderRepository, FilePhotoRepository filePhotoRepository){//}, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.folderRepository = folderRepository;

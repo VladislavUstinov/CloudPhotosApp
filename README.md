@@ -33,6 +33,9 @@ e-mail: vladustinov90@gmail.com
 
 PS The following views are useless, I didn't delete them only because they serve as some examples to me: /photos_old, /login_old, /news, /test.
 
+PPS The application can not be called completely rest full, 
+because some data between View and Controller is transfered via @ModelAttribute FoldersPhotosDTO (Data transfer object), not via @RequestBody.
+
 
 
 
