@@ -17,14 +17,16 @@ public class FoldersPhotosDTO {
     private List<Folder> folders = new ArrayList<>();
     private List<Folder> sharedFolders = new ArrayList<>();
     private FilePhoto staticPictureEditPen = new FilePhoto();
+    private FilePhoto staticPictureArrowDown = new FilePhoto();
     private String newFolderName = "";
     private String newOwnerName = "";
     private String searchPhrase = "";
 
-    public FoldersPhotosDTO(List<FilePhoto> photos, List<Folder> folders, List<Folder> sharedFolders, FilePhoto staticPictureEditPen) {
+    public FoldersPhotosDTO(List<FilePhoto> photos, List<Folder> folders, List<Folder> sharedFolders, FilePhoto staticPictureEditPen, FilePhoto staticPictureArrowDown) {
         this.photos = photos;
         this.folders = folders;
         this.staticPictureEditPen = staticPictureEditPen;
+        this.staticPictureArrowDown = staticPictureArrowDown;
         this.sharedFolders=sharedFolders;
     }
 }

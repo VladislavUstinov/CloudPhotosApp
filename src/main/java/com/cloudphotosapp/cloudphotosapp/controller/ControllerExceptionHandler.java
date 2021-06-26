@@ -1,5 +1,6 @@
 package com.cloudphotosapp.cloudphotosapp.controller;
 
+import com.cloudphotosapp.cloudphotosapp.customexception.CustomExceptionAccessDenied;
 import javassist.NotFoundException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,6 +26,23 @@ public class ControllerExceptionHandler {
 
         return modelAndView;
     }
+
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler(CustomExceptionAccessDenied.class)
+    public ModelAndView handleAccessDenied(Exception exception){
+        log.error("CustomExceptionAccessDenied");
+        log.error(exception.getMessage());
+
+        ModelAndView modelAndView = new ModelAndView();
+
+        modelAndView.setViewName("custom_errors/403error");
+        modelAndView.addObject("exception", exception);
+
+        return modelAndView;
+    }
+
+
+
 
     @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(NotFoundException.class)

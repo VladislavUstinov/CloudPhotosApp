@@ -33,6 +33,7 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
 
     public static int AMOUNT_OF_PREDEFIENED_SAMPLE_PHOTOS_ROOT_FOLDER = 30;
     public static String PREDEFINED_STATIC_PICTURE_EDIT_PEN = "staticPictureEditPen";
+    public static String PREDEFINED_STATIC_PICTURE_EDIT_ARROW_DOWN = "staticPictureArrowDown";
 
     //private final BCryptPasswordEncoder bCryptPasswordEncoder;
     //@Autowired
@@ -64,6 +65,12 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         }
 
         FilePhoto filePhoto = new FilePhoto (name, imageFileContent);
+
+        if (filePhotoRepository.findByName(name) != null){
+            log.debug("IN LOAD STATIC IMAGE IN BOOTSTRAP: filePhotoRepository.findByName(" + name + ") != null");
+            filePhotoRepository.delete(filePhotoRepository.findByName(name));
+        }
+
         filePhotoRepository.save(filePhoto);
 
         log.debug ("Have successfully loaded static image with name = " + name);
@@ -73,9 +80,11 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
     @Override
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
+
         /*
         // if not getting data from mysql database, then uncomment it
-        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_PEN, "C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\pen.png");
+        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_ARROW_DOWN, "C:\\Users\\user\\IdeaProjects\\CloudPhotosApp\\src\\main\\resources\\static\\images\\down.png");
+        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_PEN, "C:\\Users\\user\\IdeaProjects\\CloudPhotosApp\\src\\main\\resources\\static\\images\\pen.png");
 
         Role userRole = new Role(1L, Role.USER_ROLE_STRING);
         Role adminRole = new Role(2L, Role.ADMIN_ROLE_STRING);
@@ -84,10 +93,10 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         byte[] sampleImageFileContent2 = null;
         try {
             //todo - why normal source path doesn't work? "static/images/guacamole400x400.jpg"
-            File file1 = new File("C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\guacamole400x400.jpg");
+            File file1 = new File("C:\\Users\\user\\IdeaProjects\\CloudPhotosApp\\src\\main\\resources\\static\\images\\guacamole400x400.jpg");
             sampleImageFileContent1 = Files.readAllBytes(file1.toPath());
 
-            File file2 = new File("C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\tacos400x400.jpg");
+            File file2 = new File("C:\\Users\\user\\IdeaProjects\\CloudPhotosApp\\src\\main\\resources\\static\\images\\tacos400x400.jpg");
             sampleImageFileContent2 = Files.readAllBytes(file2.toPath());
 
         } catch (IOException e) {

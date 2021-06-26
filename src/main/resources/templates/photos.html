@@ -364,6 +364,9 @@
                                             <input type="image" width="8%" height="auto" th:src="@{'/photos/' + ${foldersPhotosDTO.getStaticPictureEditPen().getId()} + '/image'}" alt="Edit"
                                             th:formaction="@{'/photos/switchPhotoBeingEdited/' + ${currentFolder.getId()} + '/selectphoto/' + ${photo.getId()}}"/>
 
+                                            <input type="image" width="8%" height="auto" th:src="@{'/photos/' + ${foldersPhotosDTO.getStaticPictureArrowDown().getId()} + '/image'}" alt="Download"
+                                                   th:formaction="@{'/photos/' +${photo.getId()} +'/download_image'}"/>
+
                                             <input type="checkbox" th:field="*{photos[__${indRawStat.index*photosRawSize + indColStat.index}__].isSelected}" />
                                             <input type="hidden" th:field="*{photos[__${indRawStat.index*photosRawSize + indColStat.index}__].id}" />
                                         </figcaption>

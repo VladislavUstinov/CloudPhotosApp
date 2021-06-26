@@ -35,9 +35,7 @@ public class UserController {
         model.addAttribute("userForm", new UserChangePasswordDTO());
         return "user/account";
     }
-    //todo - changePassword and delete user (may be with logout?).
-    // Then errors handling, split ContentController, write tests, change name of project, add description.
-    // That's it
+
     @PostMapping("/user/delete")
     public String deleteUser (Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

@@ -97,8 +97,15 @@ public class ContentController {
         if (staticPictureEditPen == null)
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
 
+        FilePhoto staticPictureArrowDown = filePhotoRepository.findByName(CloudPhotosBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_ARROW_DOWN);
+
+        if (staticPictureEditPen == null)
+            log.error("staticPictureArrowDown was NOT LOADED from filePhotoRepository in ContentController");
+
         FoldersPhotosDTO foldersPhotosDTO = new FoldersPhotosDTO(new ArrayList<>(folder.getFilePhotos()),
-                                                                 new ArrayList<>(folder.getSubFolders()), getSharedWithMeFoldersToShow (currentPrincipalName), staticPictureEditPen);
+                                                                 new ArrayList<>(folder.getSubFolders()),
+                                                     getSharedWithMeFoldersToShow (currentPrincipalName),
+                                                     staticPictureEditPen, staticPictureArrowDown);
 
 
         if (folder.getParent() != null && folder.getParent().getOwners().contains(user))
@@ -204,8 +211,15 @@ public class ContentController {
         if (staticPictureEditPen == null)
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
 
+        FilePhoto staticPictureArrowDown = filePhotoRepository.findByName(CloudPhotosBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_ARROW_DOWN);
+
+        if (staticPictureEditPen == null)
+            log.error("staticPictureArrowDown was NOT LOADED from filePhotoRepository in ContentController");
+
         FoldersPhotosDTO foldersPhotosDTO = new FoldersPhotosDTO(new ArrayList<>(root.getFilePhotos()),
-                                                            new ArrayList<>(root.getSubFolders()), getSharedWithMeFoldersToShow (currentPrincipalName), staticPictureEditPen);
+                                                                 new ArrayList<>(root.getSubFolders()),
+                                                                 getSharedWithMeFoldersToShow (currentPrincipalName),
+                                                                 staticPictureEditPen, staticPictureArrowDown);
 
         model.addAttribute("foldersPhotosDTO", foldersPhotosDTO);
         model.addAttribute("folders", root.getSubFolders());
@@ -272,8 +286,14 @@ public class ContentController {
         if (staticPictureEditPen == null)
             log.error("staticPictureEditPen was NOT LOADED from filePhotoRepository in ContentController");
 
+        FilePhoto staticPictureArrowDown = filePhotoRepository.findByName(CloudPhotosBootStrap.PREDEFINED_STATIC_PICTURE_EDIT_ARROW_DOWN);
+
+        if (staticPictureEditPen == null)
+            log.error("staticPictureArrowDown was NOT LOADED from filePhotoRepository in ContentController");
+
         FoldersPhotosDTO newFoldersPhotosDTO = new FoldersPhotosDTO(photosSearchResult,
-                foldersSearchResult, getSharedWithMeFoldersToShow (currentPrincipalName), staticPictureEditPen);
+                foldersSearchResult, getSharedWithMeFoldersToShow (currentPrincipalName),
+                staticPictureEditPen, staticPictureArrowDown);
 
         model.addAttribute("foldersPhotosDTO", newFoldersPhotosDTO);
 
