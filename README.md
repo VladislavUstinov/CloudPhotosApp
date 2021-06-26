@@ -31,7 +31,7 @@ Vladislav D. Ustinov,
 Ph.D. from Lomonosov Moscow State University
 e-mail: vladustinov90@gmail.com
 
-PS The following views are useless, I just didn't delete as they serve as some examples to me: /photos_old, /login_old, /news, /test.
+PS The following views are useless, I didn't delete them only because they serve as some examples to me: /photos_old, /login_old, /news, /test.
 
 
 

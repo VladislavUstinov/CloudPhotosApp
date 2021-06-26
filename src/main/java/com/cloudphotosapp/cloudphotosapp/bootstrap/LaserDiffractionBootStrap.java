@@ -74,6 +74,7 @@ public class LaserDiffractionBootStrap implements ApplicationListener<ContextRef
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
         /*
+        // if not getting data from mysql database, then uncomment it
         loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_PEN, "C:\\Users\\user\\IdeaProjects\\LaserDiffraction01\\src\\main\\resources\\static\\images\\pen.png");
 
         Role userRole = new Role(1L, Role.USER_ROLE_STRING);
