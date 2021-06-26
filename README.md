@@ -33,8 +33,14 @@ e-mail: vladustinov90@gmail.com
 
 PS The following views are useless, I didn't delete them only because they serve as some examples to me: /photos_old, /login_old, /news, /test.
 
-PPS The application can not be called completely rest full, 
-because some data between View and Controller is transfered via @ModelAttribute FoldersPhotosDTO (Data transfer object), not via @RequestBody.
+Notes.
+
+The application can not be called completely rest full, 
+because some data between View and Controller is transferred via @ModelAttribute FoldersPhotosDTO (Data transfer object), not via @RequestBody.
+
+Also note that in bootstrap the path to initial files is absolute. So you will have to change it to your path if you download the code and run it.
+
+The database is for now mysql, so you should run mysql server on your machine in order to make the app work. See above, you can easily switch to h2 in-memory database.
 
 
 
