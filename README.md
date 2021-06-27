@@ -19,8 +19,9 @@ At /photos user is able to:
 upload files (maximum size is set in application.properties file);
 create new folders as well as navigate through their subfolders;
 select photos and folders in order to copy-paste or delete them;
-rename photos and folders;
+rename photos and folders (click on pencil near them, enter new name, then click on it again);
 search photos and folders;
+download files (click on an arrow down near them);
 share folders with other users (if the folder is shared and owners want to delete it, they all should delete it separately);
 in "myaccount" button - sign out, delete account, change password.
 
