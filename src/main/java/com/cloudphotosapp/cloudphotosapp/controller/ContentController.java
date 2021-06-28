@@ -73,7 +73,7 @@ public class ContentController {
         //Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         //String currentPrincipalName = authentication.getName();
 
-        log.error("FOLDER ID = " + folderId);
+        log.debug("ContentController.getCurrentFolder(): folderId = " + folderId);
 
         String currentPrincipalName = activeUser.getUsername();
 

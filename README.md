@@ -58,6 +58,10 @@ Also note that in bootstrap the path to initial files is absolute. So you will h
 
 The database is for now mysql, so you should run mysql server on your machine in order to make the app work. See above, you can easily switch to h2 in-memory database.
 
+For bigger files you better run this command in mysql prompt:
+set global max_allowed_packet=100000000;
+
+
 
 
 
