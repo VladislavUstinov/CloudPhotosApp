@@ -58,12 +58,16 @@ public class ImageServiceImpl implements ImageService{
     @Transactional
     public void saveImageFile(Long folderId, MultipartFile file) {
 
+        log.debug("ImageServiceImpl.saveImageFile()");
         try {
             Folder folder = folderRepository.findById(folderId).get();
 
             FilePhoto filePhoto = new FilePhoto();
 
             filePhoto.setName (file.getOriginalFilename());
+
+            log.debug("file.getContentType() = " + file.getContentType());
+            filePhoto.setContentType(file.getContentType());
 
             Byte[] byteObjects = new Byte[file.getBytes().length];
 

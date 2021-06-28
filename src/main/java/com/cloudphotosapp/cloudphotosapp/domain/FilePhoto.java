@@ -23,6 +23,8 @@ public class FilePhoto {
 
     private String name = "";
 
+    private String contentType = "";
+
     //public List<String> getSomeList () { return Arrays.asList("abac", "tabac");}
 
     @Lob
@@ -62,6 +64,7 @@ public class FilePhoto {
     public FilePhoto(Long id, String name) {
         this.id = id;
         this.name = name;
+        //this.contentType = contentType;
     }
 
     public void setImage(Byte[] image) {
@@ -99,8 +102,9 @@ public class FilePhoto {
         setImageRawBytes(imageFileContent);
     }
 
-    public FilePhoto(String name, byte[] imageFileContent) {
+    public FilePhoto(String name, byte[] imageFileContent, String contentType) {
         this.name = name;
         setImageRawBytes(imageFileContent);
+        this.contentType = contentType;
     }
 }

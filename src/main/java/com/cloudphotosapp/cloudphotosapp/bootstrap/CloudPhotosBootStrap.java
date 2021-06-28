@@ -53,7 +53,7 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         this.filePhotoRepository = filePhotoRepository;
     }
 
-    public void loadStaticImageInFilePhotoRepository (String name, String path) {
+    public void loadStaticImageInFilePhotoRepository (String name, String path, String contentType) {
         byte[] imageFileContent = null;
 
         File file = new File(path);
@@ -64,8 +64,9 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
             e.printStackTrace();
         }
 
-        FilePhoto filePhoto = new FilePhoto (name, imageFileContent);
+        FilePhoto filePhoto = new FilePhoto (name, imageFileContent, contentType);
 
+        //todo: name of file photo is not unique actually.. Should be used when profit is more than damage ^^)
         if (filePhotoRepository.findByName(name) != null){
             log.debug("IN LOAD STATIC IMAGE IN BOOTSTRAP: filePhotoRepository.findByName(" + name + ") != null");
             filePhotoRepository.delete(filePhotoRepository.findByName(name));
@@ -83,8 +84,8 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
 
         /*
         // if not getting data from mysql database, then uncomment it
-        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_ARROW_DOWN, "C:\\Users\\user\\IdeaProjects\\CloudPhotosApp\\src\\main\\resources\\static\\images\\down.png");
-        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_PEN, "C:\\Users\\user\\IdeaProjects\\CloudPhotosApp\\src\\main\\resources\\static\\images\\pen.png");
+        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_ARROW_DOWN, "C:\\Users\\user\\IdeaProjects\\CloudPhotosApp\\src\\main\\resources\\static\\images\\down.png", "image/png");
+        loadStaticImageInFilePhotoRepository (PREDEFINED_STATIC_PICTURE_EDIT_PEN, "C:\\Users\\user\\IdeaProjects\\CloudPhotosApp\\src\\main\\resources\\static\\images\\pen.png", "image/png");
 
         Role userRole = new Role(1L, Role.USER_ROLE_STRING);
         Role adminRole = new Role(2L, Role.ADMIN_ROLE_STRING);
@@ -119,7 +120,9 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
 
         log.debug ("filePhotoRepository.count() = " + filePhotoRepository.count());
 
-        setFoldersAndPhotos (users, sampleImageFileContent1, sampleImageFileContent2);
+        String contentType = "image/jpeg";
+
+        setFoldersAndPhotos (users, sampleImageFileContent1, sampleImageFileContent2, contentType);
 
         log.debug("Print all filePhoto id in repo after bootstrap has worked:");
         Iterator<FilePhoto> photoIter = filePhotoRepository.findAll().iterator();
@@ -135,10 +138,10 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         log.debug ("filePhotoRepository.count() = " + filePhotoRepository.count());
     }
 
-    private void setFoldersAndPhotos (List<User> users, byte[] sampleImageFileContent1, byte[] sampleImageFileContent2) {
-        setFoldersAndPhotosSingleUser (0L, users.get(0), "0", sampleImageFileContent1, sampleImageFileContent2);
-        setFoldersAndPhotosSingleUser (3L, users.get(1), "1", sampleImageFileContent1, sampleImageFileContent2);
-        setFoldersAndPhotosSingleUser (6L, users.get(2), "2", sampleImageFileContent1, sampleImageFileContent2);
+    private void setFoldersAndPhotos (List<User> users, byte[] sampleImageFileContent1, byte[] sampleImageFileContent2, String contentType) {
+        setFoldersAndPhotosSingleUser (0L, users.get(0), "0", sampleImageFileContent1, sampleImageFileContent2, contentType);
+        setFoldersAndPhotosSingleUser (3L, users.get(1), "1", sampleImageFileContent1, sampleImageFileContent2, contentType);
+        setFoldersAndPhotosSingleUser (6L, users.get(2), "2", sampleImageFileContent1, sampleImageFileContent2, contentType);
 
         log.debug("folderRepository.count() = " + folderRepository.count());
         log.debug("filePhotoRepository.count() = " + filePhotoRepository.count());
@@ -154,7 +157,7 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         }*/
     }
 
-    private void setFoldersAndPhotosSingleUser (Long startIndexFolders, User user, String userNumber, byte[] sampleImageFileContent1, byte[] sampleImageFileContent2){
+    private void setFoldersAndPhotosSingleUser (Long startIndexFolders, User user, String userNumber, byte[] sampleImageFileContent1, byte[] sampleImageFileContent2, String contentType){
         //rootFolder0
         Folder rootFolder0 = new Folder(startIndexFolders+1L, "root"+userNumber);
         rootFolder0.addOwner (user);
@@ -165,9 +168,9 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         for (int i = 0; i < amountPhotosInRoot; i ++) {
             FilePhoto photoIndex0 = null;
             if (i % 2 == 0)
-                photoIndex0 = new FilePhoto ("photo" + i + "" +userNumber, sampleImageFileContent1);
+                photoIndex0 = new FilePhoto ("photo" + i + "" +userNumber, sampleImageFileContent1, contentType);
             else
-                photoIndex0 = new FilePhoto ("photo" + i + "" +userNumber, sampleImageFileContent2);
+                photoIndex0 = new FilePhoto ("photo" + i + "" +userNumber, sampleImageFileContent2, contentType);
 
             rootFolder0.addFilePhoto (photoIndex0);
         }
@@ -177,8 +180,8 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         rootFolder0.addSubFolder (subFolder10);
         subFolder10.addOwner (user);
 
-        FilePhoto photo110 = new FilePhoto ("photo11"+userNumber, sampleImageFileContent1);
-        FilePhoto photo210 = new FilePhoto ("photo21"+userNumber, sampleImageFileContent2);
+        FilePhoto photo110 = new FilePhoto ("photo11"+userNumber, sampleImageFileContent1, contentType);
+        FilePhoto photo210 = new FilePhoto ("photo21"+userNumber, sampleImageFileContent2, contentType);
 
         subFolder10.addFilePhoto (photo110);
         subFolder10.addFilePhoto (photo210);
@@ -188,8 +191,8 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         rootFolder0.addSubFolder (subFolder20);
         subFolder20.addOwner (user);
 
-        FilePhoto photo120 = new FilePhoto ("photo12"+userNumber, sampleImageFileContent1);
-        FilePhoto photo220 = new FilePhoto ("photo22"+userNumber, sampleImageFileContent2);
+        FilePhoto photo120 = new FilePhoto ("photo12"+userNumber, sampleImageFileContent1, contentType);
+        FilePhoto photo220 = new FilePhoto ("photo22"+userNumber, sampleImageFileContent2, contentType);
 
         subFolder20.addFilePhoto (photo120);
         subFolder20.addFilePhoto (photo220);

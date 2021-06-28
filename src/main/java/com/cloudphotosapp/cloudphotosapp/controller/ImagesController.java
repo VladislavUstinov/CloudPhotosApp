@@ -85,10 +85,24 @@ public class ImagesController {
             }
 
             HttpHeaders httpHeaders = new HttpHeaders();
-            httpHeaders.set(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE);
+            if (filePhoto.getContentType().isEmpty()==false)
+                httpHeaders.set(HttpHeaders.CONTENT_TYPE, MediaType.IMAGE_JPEG_VALUE);
+            else
+                httpHeaders.set(HttpHeaders.CONTENT_TYPE, filePhoto.getContentType());
+
             //todo not just add ".jpg" to filename!! Better would be to store extension and add it
             if (filePhoto.getName().contains("."))
                 httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filePhoto.getName()).build().toString());
+            else if (filePhoto.getContentType().isEmpty()==false && filePhoto.getContentType().isBlank()==false) {
+
+                log.debug("ImagesController.downloadImage:" + filePhoto.getContentType().split("/"));
+                if (filePhoto.getContentType().split("/").length==2) {
+                    String extension = filePhoto.getContentType().split("/")[1];
+                    log.debug("ImagesController.downloadImage: file extension = " + extension);
+                    httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filePhoto.getName() + "." + extension).build().toString());
+                }else
+                    httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filePhoto.getName()+".jpg").build().toString());
+            }
             else
                 httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filePhoto.getName()+".jpg").build().toString());
 
