@@ -98,6 +98,10 @@ public class ImagesController {
                 log.debug("ImagesController.downloadImage:" + filePhoto.getContentType().split("/"));
                 if (filePhoto.getContentType().split("/").length==2) {
                     String extension = filePhoto.getContentType().split("/")[1];
+
+                    if (extension.equals("jpeg"))
+                        extension = "jpg";
+
                     log.debug("ImagesController.downloadImage: file extension = " + extension);
                     httpHeaders.set(HttpHeaders.CONTENT_DISPOSITION, ContentDisposition.attachment().filename(filePhoto.getName() + "." + extension).build().toString());
                 }else

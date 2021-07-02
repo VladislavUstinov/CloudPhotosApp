@@ -95,7 +95,7 @@ public class ContentControllerTest {
                 .andExpect(view().name("photos"));
 
         verify(folderService, times(1)).getRootFolderByUsername(anyString());
-        verify(filePhotoRepository, times(2)).findByName(anyString());
+        verify(filePhotoRepository, times(3)).findByName(anyString());
     }
 
     @Test
@@ -121,7 +121,7 @@ public class ContentControllerTest {
                 .andExpect(view().name("photos"));
 
         verify(folderService, times(1)).getFolderById(anyLong());
-        verify(filePhotoRepository, times(1)).findByName(anyString());
+        verify(filePhotoRepository, times(2)).findByName(anyString());
     }
 
     @Test
@@ -147,7 +147,7 @@ public class ContentControllerTest {
                 .andExpect(view().name("photos"));
 
         verify(folderService, times(1)).getFolderById(anyLong());
-        verify(filePhotoRepository, times(1)).findByName(anyString());
+        verify(filePhotoRepository, times(2)).findByName(anyString());
 
         //photos/startSearching/currentFolder/{currentFolderId}
         //SearchingIsBeingDoneNow
