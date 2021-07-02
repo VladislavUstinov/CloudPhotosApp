@@ -1,4 +1,4 @@
-package com.cloudphotosapp.cloudphotosapp.domain;
+package com.cloudphotosapp.cloudphotosapp.DTO;
 
 import lombok.Getter;
 import lombok.Setter;

@@ -2,7 +2,7 @@ package com.cloudphotosapp.cloudphotosapp.controller;
 
 import com.cloudphotosapp.cloudphotosapp.domain.Role;
 import com.cloudphotosapp.cloudphotosapp.domain.User;
-import com.cloudphotosapp.cloudphotosapp.domain.UserChangePasswordDTO;
+import com.cloudphotosapp.cloudphotosapp.DTO.UserChangePasswordDTO;
 import com.cloudphotosapp.cloudphotosapp.repository.RoleRepository;
 import com.cloudphotosapp.cloudphotosapp.service.UserService;
 import lombok.extern.slf4j.Slf4j;

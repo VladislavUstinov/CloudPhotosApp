@@ -3,7 +3,7 @@ package com.cloudphotosapp.cloudphotosapp.service;
 import com.cloudphotosapp.cloudphotosapp.domain.Folder;
 import com.cloudphotosapp.cloudphotosapp.domain.Role;
 import com.cloudphotosapp.cloudphotosapp.domain.User;
-import com.cloudphotosapp.cloudphotosapp.domain.UserChangePasswordDTO;
+import com.cloudphotosapp.cloudphotosapp.DTO.UserChangePasswordDTO;
 import com.cloudphotosapp.cloudphotosapp.repository.FolderRepository;
 import com.cloudphotosapp.cloudphotosapp.repository.RoleRepository;
 import com.cloudphotosapp.cloudphotosapp.repository.UserRepository;

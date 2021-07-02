@@ -1,7 +1,7 @@
 package com.cloudphotosapp.cloudphotosapp.service;
 
 import com.cloudphotosapp.cloudphotosapp.domain.User;
-import com.cloudphotosapp.cloudphotosapp.domain.UserChangePasswordDTO;
+import com.cloudphotosapp.cloudphotosapp.DTO.UserChangePasswordDTO;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 
