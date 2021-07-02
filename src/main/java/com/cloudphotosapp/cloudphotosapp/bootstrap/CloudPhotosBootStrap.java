@@ -113,7 +113,7 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         userRepository.saveAll(getUsersWithRoleAdmin(adminRole));
         roleRepository.save (adminRole);
 
-        log.debug("LaserDiffractionBootStrap.onApplicationEvent()");
+        log.debug("CloudPhotosBootStrap.onApplicationEvent()");
 
         log.debug("userRepository.count() = " + userRepository.count());
         log.debug("Have successfully loaded Bootstrap Data - Users");
@@ -130,7 +130,7 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
         while (photoIter.hasNext())
             log.debug(photoIter.next().getId().toString());*/
 
-        log.debug("LaserDiffractionBootStrap.onApplicationEvent()");
+        log.debug("CloudPhotosBootStrap.onApplicationEvent()");
 
         log.debug("userRepository.count() = " + userRepository.count());
         log.debug("Have successfully loaded Bootstrap Data - Users");
@@ -214,7 +214,7 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
 
     private List<User> getUsersWithRoleUser(Role userRole) {
 
-        log.debug("LaserDiffractionBootStrap.getUsersWithRoleUser(Role userRole)");
+        log.debug("CloudPhotosBootStrap.getUsersWithRoleUser(Role userRole)");
 
         List<User> users = new ArrayList<>();
         users.add(new User("user0", "passw0", "passw0", userRole));
@@ -235,7 +235,7 @@ public class CloudPhotosBootStrap implements ApplicationListener<ContextRefreshe
 
     private List<User> getUsersWithRoleAdmin(Role adminRole) {
 
-        log.debug("LaserDiffractionBootStrap.getUsersWithRoleAdmin(Role adminRole)");
+        log.debug("CloudPhotosBootStrap.getUsersWithRoleAdmin(Role adminRole)");
 
         List<User> users = new ArrayList<>();
         users.add(new User("admin", "admin", "admin", adminRole));
